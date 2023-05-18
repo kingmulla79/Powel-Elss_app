@@ -48,7 +48,7 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <div className="passsword">
+              <div className="password">
                 <input
                   type={visible ? "text" : "password"}
                   name="password"
