@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ItsWachira/E-Commerce-App.git"
+    "url": "https://github.com/kingmulla79/Powel-Elss_app"
   },
-  "author": "https://github.com/kingmulla79, https://github.com/ItsWachira",
+  "author": "https://github.com/kingmulla79, https://github.com/Tonyligogo",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ItsWachira/E-Commerce-App/issues"
+    "url": "https://github.com/kingmulla79/Powel-Elss_app/issues"
   },
-  "homepage": "https://github.com/ItsWachira/E-Commerce-App#readme",
+  "homepage": "https://github.com/kingmulla79/Powel-Elss_app#readme",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
@@ -34,8 +34,6 @@
     "mongoose": "^7.1.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^8.0.0"
+    "mysql": "^2.18.1"
   }
 }

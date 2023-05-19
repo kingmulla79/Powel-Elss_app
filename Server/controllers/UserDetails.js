@@ -5,14 +5,14 @@ const jwt = require("jsonwebtoken");
 const User_Login_Page = (req, res) => {
   res.status(200).json({
     success: true,
-    redirect: "/auth/login",
+    redirect: "/api/auth/login",
   });
 };
 
 const User_Register_Page = (req, res) => {
   res.status(200).json({
     success: true,
-    redirect: "/auth/register",
+    redirect: "/api/auth/register",
   });
 };
 
@@ -38,7 +38,7 @@ const User_Register_User = async (req, res) => {
         res.status(201).json({
           success: true,
           message: "Successfully registered",
-          redirect: "/auth/login",
+          redirect: "/api/auth/login",
         });
       })
       .catch((err) => {
@@ -81,7 +81,7 @@ const User_Login_User = async (req, res) => {
       res.status(403).json({
         success: false,
         message: "The username or password is invalid",
-        redirect: "/auth/login",
+        redirect: "/api/auth/login",
       });
     }
   } catch (e) {

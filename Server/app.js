@@ -4,7 +4,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const UserDetailsRoutes = require("./routes/UserDetails");
-const HomepageRoutes = require("./routes/Homepage");
+const DashboardRoutes = require("./routes/Dashboard");
 const connectDatabase = require("./Database/Database");
 const cookieParser = require("cookie-parser");
 const app = express();
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes
 app.use("/api/auth", UserDetailsRoutes);
-app.use("/api/home", HomepageRoutes);
+app.use("/api/dashboard", DashboardRoutes);
 
 // handling uncaught Exceptions
 process.on("uncaughtException", (err) => {
