@@ -1,5 +1,8 @@
 const UserDetails = require("../models/UserDetails");
 const EmployeeDetails = require("../models/Staff");
+const ItemDetails = require("../models/Items");
+const ItemSalesDetails = require("../models/ItemSales");
+const InvoiceDetails = require("../models/Invoice");
 const path = require("path");
 
 const Dashboard_Load_Page = (req, res) => {
@@ -75,9 +78,127 @@ const Dashboard_Staff_Entry = async (req, res) => {
     });
   }
 };
+const Dashboard_New_Item_Page = (req, res) => {
+  res.status(200).json({ success: true });
+};
 
+const Dashboard_New_Item = async (req, res) => {
+  try {
+    const item = new ItemDetails({
+      item_name: req.body.item_name,
+      item_category: req.body.item_category,
+      unit_price: req.body.unit_price,
+      unit_size: req.body.unit_size,
+    });
+
+    item
+      .save()
+      .then((result) => {
+        console.log("Successful entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful entry",
+          redirect: "/api/auth/dashboard",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The item entry attempt failed",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_New_Sale_Page = (req, res) => {
+  res.status(200).json({ success: true });
+};
+const Dashboard_New_Sale = (req, res) => {
+  try {
+    const itemSale = new ItemSalesDetails({
+      invoice_code: req.body.invoice_code,
+      item: req.body.item,
+      quantity: req.body.quantity,
+      unit_price: req.body.unit_price,
+      sub_total: req.body.sub_total,
+    });
+
+    itemSale
+      .save()
+      .then((result) => {
+        console.log("Successful sale entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful sale entry",
+          redirect: "/api/auth/dashboard",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in sale entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The sale entry attempt failed",
+      error: error,
+    });
+  }
+};
+const Dashboard_New_Invoice_Page = (req, res) => {
+  res.status(200).json({ success: true });
+};
+const Dashboard_New_Invoice = (req, res) => {
+  try {
+    const invoice = new InvoiceDetails({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      total_cost: req.body.total_cost,
+    });
+
+    invoice
+      .save()
+      .then((result) => {
+        console.log("Successful invoice entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful entry",
+          redirect: "/api/auth/dashboard",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in invoice entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The invoice entry attempt failed",
+      error: error,
+    });
+  }
+};
 module.exports = {
   Dashboard_Load_Page,
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
+  Dashboard_New_Item_Page,
+  Dashboard_New_Item,
+  Dashboard_New_Sale_Page,
+  Dashboard_New_Sale,
+  Dashboard_New_Invoice_Page,
+  Dashboard_New_Invoice,
 };
