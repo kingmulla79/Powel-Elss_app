@@ -12,6 +12,10 @@ const userDetailsSchema = new Schema(
       type: String,
       required: true,
     },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       default: "user",

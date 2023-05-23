@@ -22,8 +22,11 @@ router.post(
   userValidation,
   UserDetailsController.User_Login_User
 );
-router.get("/invalid-login", (req, res) => {
-  res.json({ redirect: "/auth/login" });
-});
+router.get(
+  "/verify/:userId/:uniqueString",
+  UserDetailsController.User_Verify_User
+);
+
+router.get("/verified", UserDetailsController.User_Verified_User);
 
 module.exports = router;
