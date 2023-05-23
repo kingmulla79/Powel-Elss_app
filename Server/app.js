@@ -14,7 +14,7 @@ connectDatabase();
 
 const server = app.listen(process.env.APP_PORT, () => {
   console.log(
-    `Server is running on port http://localhost/${process.env.APP_PORT}`
+    `Server is running on port http://localhost:${process.env.APP_PORT}`
   );
 });
 
@@ -46,6 +46,7 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
+// error 404
 app.use((req, res) => {
   res.status(404).json({
     success: false,

@@ -120,11 +120,32 @@ const Dashboard_New_Item = async (req, res) => {
 const Dashboard_New_Sale_Page = (req, res) => {
   res.status(200).json({ success: true });
 };
-const Dashboard_New_Sale = (req, res) => {
+const Dashboard_New_Sale = async (req, res) => {
   try {
+    const invoice = new InvoiceDetails({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      total_cost: req.body.total_cost,
+    });
+
+    invoice
+      .save()
+      .then((result) => {
+        console.log("Successful invoice entry");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in invoice entry process.Try again",
+        });
+      });
+
+    const invoice_id = await InvoiceDetails.find({}).sort({ _id: -1 }).limit(1);
+    const item_id = await ItemDetails.find({}).sort({ _id: -1 }).limit(1);
     const itemSale = new ItemSalesDetails({
-      invoice_code: req.body.invoice_code,
-      item: req.body.item,
+      invoice_code: invoice_id[0]._id,
+      item: item_id[0]._id,
       quantity: req.body.quantity,
       unit_price: req.body.unit_price,
       sub_total: req.body.sub_total,
