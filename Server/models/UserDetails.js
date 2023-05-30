@@ -20,6 +20,7 @@ const userDetailsSchema = new Schema(
       type: String,
       default: "user",
     },
+    tokens: [{ type: Object }],
   },
   { timestamps: true }
 );
