@@ -209,6 +209,21 @@ const User_Login_User = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: process.env.JWT_EXPIRES }
         );
+
+        let oldTokens = saved_user.tokens || [];
+
+        if (oldTokens.length) {
+          oldTokens = oldTokens.filter((t) => {
+            const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
+            if (timeDiff < 86400) {
+              return t;
+            }
+          });
+        }
+
+        await UserDetails.findByIdAndUpdate(saved_user._id, {
+          tokens: [...oldTokens, { token, signedAt: Date.now().toString() }],
+        });
         console.log("success");
         res.status(200).json({
           success: true,
@@ -220,7 +235,7 @@ const User_Login_User = async (req, res) => {
         console.log("Error");
         res.status(403).json({
           success: false,
-          message: "The username or password is invalid",
+          message: "The email or password is invalid",
           redirect: "/api/auth/login",
         });
       }
@@ -240,6 +255,34 @@ const User_Login_User = async (req, res) => {
   }
 };
 
+const User_Logout_User = async (req, res) => {
+  try {
+    if (req.headers && req.headers.authorization) {
+      const token = req.headers.authorization.split(" ")[1];
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Authorization failed",
+        });
+      }
+      const tokens = req.user.tokens;
+
+      const newTokens = tokens.filter((t) => t.token !== token);
+      await UserDetails.findByIdAndUpdate(req.user._id, { tokens: newTokens });
+      res.status(200).json({
+        success: true,
+        message: "Signed out successfully",
+        redirect: "/api/auth/login",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Sign out attempt failed",
+    });
+  }
+};
+
 module.exports = {
   User_Login_Page,
   User_Register_Page,
@@ -247,4 +290,5 @@ module.exports = {
   User_Verified_User,
   User_Register_User,
   User_Login_User,
+  User_Logout_User,
 };

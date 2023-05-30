@@ -1,3 +1,5 @@
 .env
 node_modules
 request.rest
+views
+routes.doc.js
