@@ -31,54 +31,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", UserDetailsRoutes);
 app.use("/api/dashboard", DashboardRoutes);
 
-// google oauth start
-const passport = require("passport");
-require("./passport");
-const session = require("express-session");
-// After you declare "app"
-app.use(session({ secret: process.env.SESSION_SECRET }));
-app.use(passport.initialize());
-// app.use(
-//   cookieSession({
-//     name: "tuto-session",
-//     keys: ["key1", "key2"],
-//   })
-// );
-app.use(passport.session());
-app.set("view engine", "ejs");
-
-app.get("/", (req, res) => {
-  res.render("index");
-});
-app.get("/failed", (req, res) => {
-  res.send("failed");
-});
-app.get("/success", (req, res) => {
-  res.render("success");
-});
-app.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
-);
-app.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/failed",
-  }),
-  function (req, res) {
-    res.redirect("/success");
-  }
-);
-
-app.get("/logout", (req, res) => {
-  req.session = null;
-  req.logOut();
-  res.redirect("/");
-});
-//google oauth end
-
 // handling uncaught Exceptions
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
@@ -95,6 +47,17 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
+// google oauth start
+
+app.set("view engine", "ejs");
+
+app.get("/", (req, res) => {
+  res.render("index");
+});
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 // error 404
 app.use((req, res) => {
   res.status(404).json({
@@ -102,3 +65,51 @@ app.use((req, res) => {
     message: "The route doesn't exist",
   });
 });
+
+// // google oauth start
+// const passport = require("passport");
+// require("./passport");
+// const session = require("express-session");
+// // After you declare "app"
+// app.use(session({ secret: process.env.SESSION_SECRET }));
+// app.use(passport.initialize());
+// // app.use(
+// //   cookieSession({
+// //     name: "tuto-session",
+// //     keys: ["key1", "key2"],
+// //   })
+// // );
+// app.use(passport.session());
+// app.set("view engine", "ejs");
+
+// app.get("/", (req, res) => {
+//   res.render("index");
+// });
+// app.get("/failed", (req, res) => {
+//   res.send("failed");
+// });
+// app.get("/success", (req, res) => {
+//   res.render("success");
+// });
+// app.get(
+//   "/google",
+//   passport.authenticate("google", {
+//     scope: ["profile", "email"],
+//   })
+// );
+// app.get(
+//   "/google/callback",
+//   passport.authenticate("google", {
+//     failureRedirect: "/failed",
+//   }),
+//   function (req, res) {
+//     res.redirect("/success");
+//   }
+// );
+
+// app.get("/logout", (req, res) => {
+//   req.session = null;
+//   req.logOut();
+//   res.redirect("/");
+// });
+// //google oauth end
