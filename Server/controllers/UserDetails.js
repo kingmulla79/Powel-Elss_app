@@ -200,49 +200,57 @@ const User_Login_User = async (req, res) => {
     const saved_user = await UserDetails.findOne({
       email: req.body.email,
     });
-    console.log(saved_user);
-    if (saved_user.verified === true) {
-      const result = await saved_user.comparePassword(req.body.password);
-      if (result) {
-        const token = jwt.sign(
-          { user_id: saved_user._id },
-          process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES }
-        );
+    if (saved_user) {
+      console.log(saved_user);
+      if (saved_user.verified === true) {
+        const result = await saved_user.comparePassword(req.body.password);
+        if (result) {
+          const token = jwt.sign(
+            { user_id: saved_user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES }
+          );
 
-        let oldTokens = saved_user.tokens || [];
+          let oldTokens = saved_user.tokens || [];
 
-        if (oldTokens.length) {
-          oldTokens = oldTokens.filter((t) => {
-            const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
-            if (timeDiff < 86400) {
-              return t;
-            }
+          if (oldTokens.length) {
+            oldTokens = oldTokens.filter((t) => {
+              const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
+              if (timeDiff < 86400) {
+                return t;
+              }
+            });
+          }
+
+          await UserDetails.findByIdAndUpdate(saved_user._id, {
+            tokens: [...oldTokens, { token, signedAt: Date.now().toString() }],
+          });
+          console.log("success");
+          res.status(200).json({
+            success: true,
+            message: "Login successful",
+            authorization: token,
+            user: saved_user,
+          });
+        } else {
+          console.log("Error");
+          res.status(403).json({
+            success: false,
+            message: "The email or password is invalid",
+            redirect: "/api/auth/login",
           });
         }
-
-        await UserDetails.findByIdAndUpdate(saved_user._id, {
-          tokens: [...oldTokens, { token, signedAt: Date.now().toString() }],
-        });
-        console.log("success");
-        res.status(200).json({
-          success: true,
-          message: "Login successful",
-          authorization: token,
-          user: saved_user,
-        });
       } else {
-        console.log("Error");
         res.status(403).json({
           success: false,
-          message: "The email or password is invalid",
+          message: "Your email has not been verified",
           redirect: "/api/auth/login",
         });
       }
     } else {
       res.status(403).json({
         success: false,
-        message: "Your email has not been verified",
+        message: "The email or password is invalid",
         redirect: "/api/auth/login",
       });
     }
