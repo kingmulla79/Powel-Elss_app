@@ -230,7 +230,7 @@ const User_Login_User = async (req, res) => {
             success: true,
             message: "Login successful",
             authorization: token,
-            user: saved_user,
+            user: saved_user.email,
           });
         } else {
           console.log("Error");

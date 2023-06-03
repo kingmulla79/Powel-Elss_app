@@ -1,36 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./login.css";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import myImage from "../images/powelElssLogo.jpg";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { server } from "../server";
-import { toast } from "react-toastify";
-import axios from "axios";
 
 function Login() {
-  // const [err, setErr] = useState(false);
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [visible, setVisible] = useState(false);
+  const userRef = useRef();
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [userFocus, setUserFocus] = React.useState(false);
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    userRef.current.focus();
+    console.log(userFocus);
+  }, []);
+  async function handleLogin(e) {
     e.preventDefault();
-
+    const data = { email, password };
     await axios
-      .post(`${server}/auth/login`, {
-        email,
-        password,
-      })
+      .post(`${server}/api/auth/login`, data)
       .then((res) => {
-        toast.success("Login Success!");
+        console.log(res);
         navigate("/");
-        window.location.reload(true);
       })
       .catch((err) => {
         console.log(err);
       });
-  };
+  }
 
   return (
     <div className="container">
@@ -39,38 +37,25 @@ function Login() {
           <img src={myImage} alt="" />
           <div className="form">
             <span className="title">Log in to powel-elss</span>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleLogin}>
               <input
                 type="email"
-                name="email"
-                autoComplete="email"
-                required
                 value={email}
+                ref={userRef}
+                placeholder="Your email"
+                autoComplete="off"
+                onFocus={() => setUserFocus(true)}
+                required
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <div className="password">
-                <input
-                  type={visible ? "text" : "password"}
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
-              </div>
+              <input
+                type="password"
+                value={password}
+                placeholder="password"
+                autoComplete="off"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+              />
               <button>Sign in</button>
             </form>
           </div>

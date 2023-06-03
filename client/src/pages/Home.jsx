@@ -1,31 +1,50 @@
 import React from 'react'
 import './home.css';
-import {AiOutlineHome} from 'react-icons/ai';
-import {BsPeople} from 'react-icons/bs';
-import {FaWpforms} from 'react-icons/fa';
-import {HiOutlineDocumentText} from 'react-icons/hi';
-import {AiOutlineUsergroupAdd} from 'react-icons/ai';
-
+import Sidebar from '../components/sidebar/sidebar';
+import Widget from '../components/widgets/widget';
+import Recents from '../components/recents/recents'
+import RecentService from '../components/recentservice/recentService'
+import BarChart from '../components/chart/BarChart';
+import Navbar from "../components/navbar/Navbar"
 
 function Home() {
+
   return (
-    <div className='homeContainer'>
-      <aside>
-        <h2 className='name'>powel-elss</h2>
-        <div className="dashboard">
-          <span>DASHBOARD</span>
-          <p className='active'><AiOutlineHome/> Home</p>
+    <div className='home'>
+      <Sidebar/>
+      <div className='homeContainer'>
+        <Navbar/>
+        <div className="widgets">
+          <Widget type="sales"/>
+          <Widget type="expenses"/>
+          <Widget type="services"/>
+          <Widget type="serviceForm"/>
         </div>
-        <div className="pages">
-          <span>PAGES</span>
-          <p > <BsPeople /> Staff</p>
-          <p> <FaWpforms />Job Card</p>
-          <p> <HiOutlineDocumentText style={{fontSize: '20px'}}/>Sales</p>
-          <p> <AiOutlineUsergroupAdd style={{fontSize: '20px'}} />New Staff</p>
+        <div className="middleContainer">
+            <h3>Recent Services</h3>
+            <div className="recentServiceContainer">
+              <RecentService/>
+              <RecentService/>
+              <RecentService/>
+            </div>
+          </div>
+        <div className="bottomContainer">
+          <div className="barChart">
+            <BarChart/>
+          </div>
+          <div className="rightContainer">
+            <div className="bottomWidgets widgets">
+              <Widget type="newItem"/>
+            </div>
+            <h3>Recent Purchases</h3>
+            <div className="recentsContainer">
+              <Recents/>
+              <Recents/>
+              <Recents/>
+            </div>
+          </div>
         </div>
-        <button>Log out</button>
-      </aside>
-      <main></main>
+      </div>
     </div>
   )
 }
