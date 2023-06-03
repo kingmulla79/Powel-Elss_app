@@ -1,62 +1,55 @@
+.home{
+    display: flex;
+    min-height: 100vh;
+    gap: 10px;
+}
+
 .homeContainer{
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-}
-aside{
-    flex: 1;
-    padding-inline: 12px 10px;
-    position: relative;
-}
-aside h2.name{
-    color: #d74221;
-    font-size: 32px;
-    font-weight: bold;
-    margin: 0;
-    margin-block: 0px 20px;
-}
-aside span{
-    color: rgb(146, 146, 146);
-}
-aside p{
-    padding-left: 14px;
-    display: flex;
-    place-items: center;
-    gap: .8rem;
-    margin: 0;
-    margin-block: .8rem;
-    color: rgb(61, 60, 60);
-    cursor: pointer;
-    transition: all 300ms ease;
-}
-aside p:hover{
-    color: #d74221;
-    transform: scale(.94);
-}
-aside p.active{
-    background-color: #d74221;
-    color: white;
-    border-radius: 4px;
-    padding-block: 5px;
-}
-aside button{
-    position: absolute;
-    bottom: 20px;
-    background: transparent;
-    border: none;
-    color: white;
-    background-color: #d74221;
-    padding: 7px 14px;
-    border-radius: 4px;
-    font-size: 14px;
-    width: calc(100% - 24px);
-}
-
-
-
-
-
-main{
     flex: 5;
-    background-color: rgba(245, 245, 245, 0.993);
+    overflow-y: auto;
+    height: calc(100vh - 10px);
+    padding-inline: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.widgets{
+    display: flex;
+    gap: 20px;
+}
+.bottomContainer{
+    display: flex;
+    gap: 20px;
+    padding-inline-end: 10px;
+}
+.barChart{
+    flex: 3;
+    background-color: white;
+}
+.rightContainer{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 20px;
+}
+.recentServiceContainer{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.middleContainer h3{
+    margin: 0;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+recentsContainer{
+    box-shadow: 2px 4px 10px 1px rgba(201,201,201,0.47);
+    -webkit-box-shadow: 2px 4px 10px 1px rgba(201,201,201,0.47);
+    -moz-box-shadow: 2px 4px 10px 1px rgba(201,201,201,0.47);
+    border-radius: 10px;
+    padding: 10px;
+}
+.rightContainer h3{
+    margin: 0;
+    font-weight: 600;
 }
