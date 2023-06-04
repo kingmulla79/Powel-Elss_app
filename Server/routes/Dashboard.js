@@ -33,6 +33,13 @@ router.post(
   Dashboard_Controllers.Dashboard_Staff_Entry
 );
 router.get(
+  "/employee-data",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Staff_Data
+);
+router.get(
   "/new-item",
   isAuth,
   isVerified,
