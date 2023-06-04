@@ -78,6 +78,30 @@ const Dashboard_Staff_Entry = async (req, res) => {
     });
   }
 };
+const Dashboard_Staff_Data = async (req, res) => {
+  try {
+    const employees = await EmployeeDetails.find({});
+    if (employees) {
+      res.status(200).json({
+        status: true,
+        message: `Employee data sucessfully fetched`,
+        employees,
+      });
+    } else {
+      res.status(400).json({
+        status: false,
+        message: `Bad request`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The employee data fetch attempt failed failed",
+      error: error,
+    });
+  }
+};
+
 const Dashboard_New_Item_Page = (req, res) => {
   res.status(200).json({ success: true });
 };
@@ -216,6 +240,7 @@ module.exports = {
   Dashboard_Load_Page,
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
+  Dashboard_Staff_Data,
   Dashboard_New_Item_Page,
   Dashboard_New_Item,
   Dashboard_New_Sale_Page,
