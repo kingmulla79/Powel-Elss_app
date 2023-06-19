@@ -96,7 +96,55 @@ const Dashboard_Staff_Data = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "The employee data fetch attempt failed failed",
+      message: "The employee data fetch attempt failed",
+      error: error,
+    });
+  }
+};
+const Dashboard_Delete_Employee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    EmployeeDetails.find({ _id: id })
+      .then((result) => {
+        console.log(`Employee record exists`);
+        if (result.length > 0) {
+          EmployeeDetails.deleteOne({ _id: id })
+            .then(() => {
+              res.status(201).json({
+                success: true,
+                message: `Employee sucessfully deleted`,
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+              res.status(400).json({
+                success: false,
+                message:
+                  "An error occured while deleting verification credentials",
+                error,
+              });
+            });
+        } else {
+          // user verification details don't exist
+          res.status(400).json({
+            success: false,
+            message:
+              "The account record doesn't exist or has already been deleted",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          success: false,
+          message: "The Id provided is invalid",
+          error,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The employee data deletion attempt failed",
       error: error,
     });
   }
@@ -241,6 +289,7 @@ module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
   Dashboard_Staff_Data,
+  Dashboard_Delete_Employee,
   Dashboard_New_Item_Page,
   Dashboard_New_Item,
   Dashboard_New_Sale_Page,
