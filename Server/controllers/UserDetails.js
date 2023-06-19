@@ -5,20 +5,6 @@ const { sendEmail, sendVerificationEmail } = require("../utils/Auto_Email");
 const bcrypt = require("bcrypt");
 const UserVerification = require("../models/UserVerification");
 
-const User_Login_Page = (req, res) => {
-  res.status(200).json({
-    success: true,
-    redirect: "/api/auth/login",
-  });
-};
-
-const User_Register_Page = (req, res) => {
-  res.status(200).json({
-    success: true,
-    redirect: "/api/auth/register",
-  });
-};
-
 const User_Register_User = async (req, res) => {
   try {
     const isNewEmail = await UserDetails.isThisEmailInUse(req.body.email);
@@ -292,8 +278,6 @@ const User_Logout_User = async (req, res) => {
 };
 
 module.exports = {
-  User_Login_Page,
-  User_Register_Page,
   User_Verify_User,
   User_Verified_User,
   User_Register_User,

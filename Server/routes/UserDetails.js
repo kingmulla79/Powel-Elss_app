@@ -9,8 +9,6 @@ const {
 } = require("../middleware/validation/UserDetails");
 const { isAuth } = require("../middleware/Auth");
 
-router.get("/login", UserDetailsController.User_Login_Page);
-router.get("/register", UserDetailsController.User_Register_Page);
 router.post(
   "/register",
   validateUserRegistration,
