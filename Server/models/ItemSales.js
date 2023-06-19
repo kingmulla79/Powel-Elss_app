@@ -8,10 +8,6 @@ const itemsSalesSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "invoice",
     },
-    item: {
-      type: Schema.Types.ObjectId,
-      ref: "item",
-    },
     quantity: {
       type: Number,
       required: true,

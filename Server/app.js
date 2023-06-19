@@ -6,6 +6,9 @@ const cors = require("cors");
 const { UserDetailsRoutes, DashboardRoutes } = require("./router");
 const connectDatabase = require("./Database/Database");
 const cookieParser = require("cookie-parser");
+const passport = require("passport");
+require("./passport");
+const session = require("express-session");
 // const cookieSession = require("cookie-session");
 const app = express();
 
@@ -26,6 +29,16 @@ app.use("/", express.static("uploads"));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true },
+  })
+);
+app.use(passport.initialize());
 
 // routes
 app.use("/api/auth", UserDetailsRoutes);
@@ -48,20 +61,6 @@ process.on("unhandledRejection", (err) => {
 });
 
 // google oauth start
-const passport = require("passport");
-require("./passport");
-const session = require("express-session");
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true },
-  })
-);
-app.use(passport.initialize());
-
-app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   res.render("index");

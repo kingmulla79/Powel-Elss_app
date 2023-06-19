@@ -39,6 +39,13 @@ router.get(
   isAdmin,
   Dashboard_Controllers.Dashboard_Staff_Data
 );
+router.delete(
+  "/delete_user/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Delete_Employee
+);
 router.get(
   "/new-item",
   isAuth,

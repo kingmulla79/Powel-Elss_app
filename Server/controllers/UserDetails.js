@@ -201,10 +201,10 @@ const User_Login_User = async (req, res) => {
       email: req.body.email,
     });
     if (saved_user) {
-      console.log(saved_user);
       if (saved_user.verified === true) {
         const result = await saved_user.comparePassword(req.body.password);
         if (result) {
+          console.log(saved_user);
           const token = jwt.sign(
             { user_id: saved_user._id },
             process.env.JWT_SECRET,

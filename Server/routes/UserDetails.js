@@ -29,6 +29,7 @@ router.get(
   "/verify/:userId/:uniqueString",
   UserDetailsController.User_Verify_User
 );
+
 router.get("/verified", UserDetailsController.User_Verified_User);
 
 module.exports = router;
