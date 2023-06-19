@@ -9,18 +9,11 @@ const {
 
 const uploads = require("../multer");
 
-router.get(
-  "/",
-  isAuth,
-  isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_Load_Page
-);
 router.post(
   "/upload-profile-pic",
   isAuth,
   isVerified,
-  uploads.single("profile"),
+  uploads.single("product_photo"),
   Dashboard_Controllers.Dashboard_Upload_Profile_Pic
 );
 router.post(
@@ -46,13 +39,7 @@ router.delete(
   isAdmin,
   Dashboard_Controllers.Dashboard_Delete_Employee
 );
-router.get(
-  "/new-item",
-  isAuth,
-  isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_New_Item_Page
-);
+
 router.post(
   "/new-item",
   isAuth,
@@ -60,32 +47,23 @@ router.post(
   isAdmin,
   Dashboard_Controllers.Dashboard_New_Item
 );
+
 router.get(
-  "/new-sale",
+  "/add-to-cart/:id",
   isAuth,
   isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_New_Sale_Page
-);
-router.post(
-  "/new-sale",
-  isAuth,
-  isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_New_Sale
+  Dashboard_Controllers.Dashboard_Add_To_Cart
 );
 router.get(
-  "/new-invoice",
+  "/shopping-cart",
   isAuth,
   isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_New_Invoice_Page
+  Dashboard_Controllers.Dashboard_Shopping_Cart_Details
 );
 router.post(
-  "/new-invoice",
+  "/checkout",
   isAuth,
   isVerified,
-  isAdmin,
-  Dashboard_Controllers.Dashboard_New_Invoice
+  Dashboard_Controllers.Dashboard_Checkout
 );
 module.exports = router;

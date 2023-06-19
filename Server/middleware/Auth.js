@@ -54,13 +54,10 @@ exports.isAdmin = async (req, res, next) => {
 
       res.status(401).json({
         success: false,
-        message: `Access denied: You are not an administrator to this app.`,
+        message: `Access denied`,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: `Authentication error`,
-      });
+      console.log(error);
     }
   }
 };
@@ -79,13 +76,10 @@ exports.isVerified = async (req, res, next) => {
 
       res.status(401).json({
         success: false,
-        message: `Access denied. Your email has not been verified`,
+        message: `Access denied`,
       });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: `Authentication error`,
-      });
+      console.log(error);
     }
   }
 };

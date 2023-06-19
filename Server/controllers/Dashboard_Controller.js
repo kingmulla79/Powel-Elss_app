@@ -1,13 +1,10 @@
 const UserDetails = require("../models/UserDetails");
 const EmployeeDetails = require("../models/Staff");
-const ItemDetails = require("../models/Items");
-const ItemSalesDetails = require("../models/ItemSales");
-const InvoiceDetails = require("../models/Invoice");
+const Orders = require("../models/Orders");
+const Product = require("../models/Products");
+const Cart = require("../models/Cart");
 const path = require("path");
 
-const Dashboard_Load_Page = (req, res) => {
-  res.status(200).json({ success: true });
-};
 const Dashboard_Upload_Profile_Pic = async (req, res) => {
   const user = req.user;
 
@@ -150,17 +147,14 @@ const Dashboard_Delete_Employee = async (req, res) => {
   }
 };
 
-const Dashboard_New_Item_Page = (req, res) => {
-  res.status(200).json({ success: true });
-};
-
 const Dashboard_New_Item = async (req, res) => {
   try {
-    const item = new ItemDetails({
-      item_name: req.body.item_name,
-      item_category: req.body.item_category,
-      unit_price: req.body.unit_price,
-      unit_size: req.body.unit_size,
+    const item = new Product({
+      name: req.body.name,
+      desc: req.body.desc,
+      category: req.body.category,
+      price: req.body.price,
+      product_photo: req.body.product_photo,
     });
 
     item
@@ -189,111 +183,93 @@ const Dashboard_New_Item = async (req, res) => {
   }
 };
 
-const Dashboard_New_Sale_Page = (req, res) => {
-  res.status(200).json({ success: true });
-};
-const Dashboard_New_Sale = async (req, res) => {
+const Dashboard_Add_To_Cart = async (req, res) => {
   try {
-    const invoice = new InvoiceDetails({
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      total_cost: req.body.total_cost,
-    });
+    let productId = req.params.id;
+    let cart = new Cart(req.session.cart ? req.session.cart : {});
 
-    invoice
-      .save()
+    await Product.findById(productId)
       .then((result) => {
-        console.log("Successful invoice entry");
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(401).json({
-          success: false,
-          message: "Error in invoice entry process.Try again",
-        });
-      });
-
-    const invoice_id = await InvoiceDetails.find({}).sort({ _id: -1 }).limit(1);
-    const item_id = await ItemDetails.find({}).sort({ _id: -1 }).limit(1);
-    const itemSale = new ItemSalesDetails({
-      invoice_code: invoice_id[0]._id,
-      item: item_id[0]._id,
-      quantity: req.body.quantity,
-      unit_price: req.body.unit_price,
-      sub_total: req.body.sub_total,
-    });
-
-    itemSale
-      .save()
-      .then((result) => {
-        console.log("Successful sale entry");
-        res.status(201).json({
+        cart.add(result, result._id);
+        req.session.cart = cart;
+        console.log(req.session.cart);
+        res.status(200).json({
           success: true,
-          message: "Successful sale entry",
-          redirect: "/api/auth/dashboard",
+          message: `The item has been successfully added to cart`,
         });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((error) => {
         res.status(401).json({
           success: false,
-          message: "Error in sale entry process.Try again",
+          message:
+            "Could not find the products provided in the products collection",
+          error: err,
         });
       });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "The sale entry attempt failed",
+      message: "Server Error: error while adding item to cart",
       error: error,
     });
   }
 };
-const Dashboard_New_Invoice_Page = (req, res) => {
-  res.status(200).json({ success: true });
-};
-const Dashboard_New_Invoice = (req, res) => {
-  try {
-    const invoice = new InvoiceDetails({
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      total_cost: req.body.total_cost,
-    });
 
-    invoice
-      .save()
-      .then((result) => {
-        console.log("Successful invoice entry");
-        res.status(201).json({
-          success: true,
-          message: "Successful entry",
-          redirect: "/api/auth/dashboard",
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(401).json({
-          success: false,
-          message: "Error in invoice entry process.Try again",
-        });
-      });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "The invoice entry attempt failed",
-      error: error,
+const Dashboard_Shopping_Cart_Details = (req, res) => {
+  if (!req.session.cart) {
+    res.status(200).json({
+      success: true,
+      message: `No shopping cart session: No items in the shopping cart`,
     });
   }
+  let cart = new Cart(req.session.cart);
+  res.status(201).json({
+    success: true,
+    message: `A shopping cart session exists`,
+    products: cart.generateArray(),
+    totalPrice: cart.totalPrice,
+  });
 };
+
+const Dashboard_Checkout = async (req, res) => {
+  if (!req.session.cart) {
+    res.status(401).json({
+      success: false,
+      message: `No shopping cart available`,
+    });
+  }
+  var cart = new Cart(req.session.cart);
+
+  const Order = new Orders({
+    user: req.user,
+    cart: cart,
+    address: req.body.address,
+    name: req.body.name,
+  });
+  Order.save()
+    .then((result) => {
+      console.log("Order details successfully saved");
+    })
+    .catch((error) => {
+      res.status(400).json({
+        success: false,
+        message: "An error occured while saving the order details",
+      });
+    });
+  req.session.cart = null;
+  res.status(201).json({
+    success: true,
+    message: "The payment is successfully made",
+  });
+};
+
 module.exports = {
-  Dashboard_Load_Page,
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
   Dashboard_Staff_Data,
   Dashboard_Delete_Employee,
-  Dashboard_New_Item_Page,
   Dashboard_New_Item,
-  Dashboard_New_Sale_Page,
-  Dashboard_New_Sale,
-  Dashboard_New_Invoice_Page,
-  Dashboard_New_Invoice,
+  Dashboard_Add_To_Cart,
+  Dashboard_Shopping_Cart_Details,
+  Dashboard_Checkout,
 };
