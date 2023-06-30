@@ -19,7 +19,7 @@ connectDatabase();
 
 const server = app.listen(process.env.APP_PORT, () => {
   console.log(
-    `Server is running on port http://localhost/${process.env.APP_PORT}`
+    `Server is running on port http://localhost:${process.env.APP_PORT}`
   );
 });
 

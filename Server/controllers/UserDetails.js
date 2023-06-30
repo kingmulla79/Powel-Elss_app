@@ -78,7 +78,7 @@ const User_Verify_User = async (req, res) => {
               UserDetails.deleteOne({ _id: userId })
                 .then(() => {
                   res.json({
-                    message: `The verificationlink has expired. Please sign in again`,
+                    message: `The verification link has expired. Please sign in again`,
                   });
                 })
                 .catch((error) => {

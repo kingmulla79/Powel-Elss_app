@@ -79,6 +79,7 @@ const Dashboard_Staff_Data = async (req, res) => {
   try {
     const employees = await EmployeeDetails.find({});
     if (employees) {
+      console.log(employees);
       res.status(200).json({
         status: true,
         message: `Employee data sucessfully fetched`,
@@ -116,8 +117,7 @@ const Dashboard_Delete_Employee = async (req, res) => {
               console.log(error);
               res.status(400).json({
                 success: false,
-                message:
-                  "An error occured while deleting verification credentials",
+                message: "An error occured while deleting employee credentials",
                 error,
               });
             });
@@ -183,6 +183,55 @@ const Dashboard_New_Item = async (req, res) => {
   }
 };
 
+const Dashboard_Delete_Item = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    Product.find({ _id: id })
+      .then((result) => {
+        console.log(`Item record exists`);
+        if (result.length > 0) {
+          Product.deleteOne({ _id: id })
+            .then(() => {
+              res.status(201).json({
+                success: true,
+                message: `Item sucessfully deleted`,
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+              res.status(400).json({
+                success: false,
+                message: "An error occured while deleting item details",
+                error,
+              });
+            });
+        } else {
+          // item details don't exist
+          res.status(400).json({
+            success: false,
+            message:
+              "The item record doesn't exist or has already been deleted",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(500).json({
+          success: false,
+          message: "The Id provided is invalid",
+          error,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while deleting item",
+      error: error,
+    });
+  }
+};
+
 const Dashboard_Add_To_Cart = async (req, res) => {
   try {
     let productId = req.params.id;
@@ -194,6 +243,7 @@ const Dashboard_Add_To_Cart = async (req, res) => {
         req.session.cart = cart;
         console.log(req.session.cart);
         res.status(200).json({
+          cart,
           success: true,
           message: `The item has been successfully added to cart`,
         });
@@ -214,11 +264,38 @@ const Dashboard_Add_To_Cart = async (req, res) => {
     });
   }
 };
+const Dashboard_Reduce_Cart_Items = (req, res) => {
+  let productId = req.params.id;
+  let cart = new Cart(req.session.cart ? req.session.cart : {});
+
+  cart.reduceByOne(productId);
+  req.session.cart = cart;
+  console.log(req.session.cart);
+  res.status(200).json({
+    success: true,
+    message: `The items reduction operation from the cart was successful`,
+    redirect: req.session.oldURL,
+  });
+};
+
+const Dashboard_Remove_Items = (req, res) => {
+  let productId = req.params.id;
+  let cart = new Cart(req.session.cart ? req.session.cart : {});
+
+  cart.removeItem(productId);
+  req.session.cart = cart;
+  console.log(req.session.cart);
+  res.status(200).json({
+    success: true,
+    message: `The item selected was successfully removed from the cart`,
+    redirect: req.session.oldURL,
+  });
+};
 
 const Dashboard_Shopping_Cart_Details = (req, res) => {
   if (!req.session.cart) {
-    res.status(200).json({
-      success: true,
+    res.status(401).json({
+      success: false,
       message: `No shopping cart session: No items in the shopping cart`,
     });
   }
@@ -244,6 +321,7 @@ const Dashboard_Checkout = async (req, res) => {
     user: req.user,
     cart: cart,
     address: req.body.address,
+    date: req.body.date,
     name: req.body.name,
   });
   Order.save()
@@ -258,9 +336,54 @@ const Dashboard_Checkout = async (req, res) => {
     });
   req.session.cart = null;
   res.status(201).json({
+    cart,
     success: true,
     message: "The payment is successfully made",
   });
+};
+
+const Dashboard_All_Products = async (req, res) => {
+  try {
+    await Product.find().then((result) => {
+      res.status(201).json({
+        products: result,
+        success: true,
+        message: "All the products have been successfully fetched",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching product information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_All_Orders = async (req, res) => {
+  try {
+    let totalPrice = 0;
+    await Orders.find().then((result) => {
+      if (result.length > 0) {
+        result.forEach((order) => {
+          totalPrice += order.cart.totalPrice;
+        });
+      }
+      console.log(result);
+      res.status(201).json({
+        totalPrice,
+        orders: result,
+        success: true,
+        message: "All the products have been successfully fetched",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching product information",
+      error: error,
+    });
+  }
 };
 
 module.exports = {
@@ -269,7 +392,12 @@ module.exports = {
   Dashboard_Staff_Data,
   Dashboard_Delete_Employee,
   Dashboard_New_Item,
+  Dashboard_Delete_Item,
   Dashboard_Add_To_Cart,
+  Dashboard_Reduce_Cart_Items,
+  Dashboard_Remove_Items,
   Dashboard_Shopping_Cart_Details,
   Dashboard_Checkout,
+  Dashboard_All_Products,
+  Dashboard_All_Orders,
 };

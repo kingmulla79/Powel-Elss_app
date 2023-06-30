@@ -15,7 +15,7 @@ const employeeSchema = new Schema({
     required: true,
   },
   phone_no: {
-    type: Number,
+    type: String,
     required: true,
   },
   job_title: {
