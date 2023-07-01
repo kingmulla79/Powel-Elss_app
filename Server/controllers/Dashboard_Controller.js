@@ -2,6 +2,9 @@ const UserDetails = require("../models/UserDetails");
 const EmployeeDetails = require("../models/Staff");
 const Orders = require("../models/Orders");
 const Product = require("../models/Products");
+const Allowances = require("../models/Allowances");
+const Expenses = require("../models/Expenses");
+const Deductions = require("../models/Deductions");
 const Cart = require("../models/Cart");
 const path = require("path");
 
@@ -75,6 +78,33 @@ const Dashboard_Staff_Entry = async (req, res) => {
     });
   }
 };
+
+const Dashboard_Update_Employee = async (req, res) => {
+  await EmployeeDetails.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The employee record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The employee data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The employee update attempt failed",
+        error: error,
+      });
+    });
+};
+
 const Dashboard_Staff_Data = async (req, res) => {
   try {
     const employees = await EmployeeDetails.find({});
@@ -181,6 +211,32 @@ const Dashboard_New_Item = async (req, res) => {
       error: error,
     });
   }
+};
+
+const Dashboard_Update_Item = async (req, res) => {
+  await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The product record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The product data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The product update attempt failed",
+        error: error,
+      });
+    });
 };
 
 const Dashboard_Delete_Item = async (req, res) => {
@@ -345,11 +401,18 @@ const Dashboard_Checkout = async (req, res) => {
 const Dashboard_All_Products = async (req, res) => {
   try {
     await Product.find().then((result) => {
-      res.status(201).json({
-        products: result,
-        success: true,
-        message: "All the products have been successfully fetched",
-      });
+      if (result.length > 0) {
+        res.status(201).json({
+          products: result,
+          success: true,
+          message: "All the products have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no products stored yet",
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -386,12 +449,280 @@ const Dashboard_All_Orders = async (req, res) => {
   }
 };
 
+const Dashboard_Deductions_Data = async (req, res) => {
+  try {
+    await Deductions.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          allowances: result,
+          success: true,
+          message: "All the deductions details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no deduction stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching deduction information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Deductions_Entry = async (req, res) => {
+  try {
+    const deduction = new Deductions({
+      id_no: req.body.id_no,
+      month: req.body.month,
+      year: req.body.year,
+      nhif: req.body.nhif,
+      nssf: req.body.nssf,
+      advances: req.body.advances,
+      taxes: req.body.taxes,
+    });
+
+    deduction
+      .save()
+      .then((result) => {
+        console.log("Successful deduction entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful deduction entry",
+          result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in deduction entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The deduction entry attempt failed",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Deductions_Update = async (req, res) => {
+  await Deductions.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The deduction record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The deduction data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The deduction update attempt failed",
+        error: error,
+      });
+    });
+};
+
+const Dashboard_Expenses = async (req, res) => {
+  try {
+    await Expenses.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          expenses: result,
+          success: true,
+          message: "All the expense details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no expenses stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching expenses information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Expenses_Entry = async (req, res) => {
+  try {
+    const expenses = new Expenses({
+      code: req.body.code,
+      service_item_name: req.body.service_item_name,
+      total_cost: req.body.total_cost,
+      recorded_by: req.body.recorded_by,
+      date: req.body.date,
+      advances: req.body.advances,
+      taxes: req.body.taxes,
+    });
+
+    expenses
+      .save()
+      .then((result) => {
+        console.log("Successful expenses entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful expenses entry",
+          result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in expenses entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The expenses entry attempt failed",
+      error: error,
+    });
+  }
+};
+const Dashboard_Expenses_Update = async (req, res) => {
+  await Expenses.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The expenses record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The expenses data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The expenses update attempt failed",
+        error: error,
+      });
+    });
+};
+
+const Dashboard_Allowance = async (req, res) => {
+  try {
+    await Allowances.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          allowances: result,
+          success: true,
+          message: "All the allowances details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no allowances stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching allowances information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Allowances_Entry = async (req, res) => {
+  try {
+    const allowances = new Allowances({
+      id_no: req.body.id_no,
+      month: req.body.month,
+      year: req.body.year,
+      arrears: req.body.arrears,
+      house: req.body.house,
+      imprest_amount: req.body.imprest_amount,
+      transport: req.body.transport,
+    });
+
+    allowances
+      .save()
+      .then((result) => {
+        console.log("Successful allowances entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful allowances entry",
+          result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in allowances entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The allowances entry attempt failed",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Allowances_Update = async (req, res) => {
+  await Allowances.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The allowances record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The allowances data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The allowances update attempt failed",
+        error: error,
+      });
+    });
+};
+
 module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
+  Dashboard_Update_Employee,
   Dashboard_Staff_Data,
   Dashboard_Delete_Employee,
   Dashboard_New_Item,
+  Dashboard_Update_Item,
   Dashboard_Delete_Item,
   Dashboard_Add_To_Cart,
   Dashboard_Reduce_Cart_Items,
@@ -400,4 +731,13 @@ module.exports = {
   Dashboard_Checkout,
   Dashboard_All_Products,
   Dashboard_All_Orders,
+  Dashboard_Deductions_Data,
+  Dashboard_Deductions_Entry,
+  Dashboard_Deductions_Update,
+  Dashboard_Expenses,
+  Dashboard_Expenses_Entry,
+  Dashboard_Expenses_Update,
+  Dashboard_Allowance,
+  Dashboard_Allowances_Entry,
+  Dashboard_Allowances_Update,
 };

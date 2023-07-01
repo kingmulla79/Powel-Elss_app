@@ -17,6 +17,21 @@ const {
   productValidation,
 } = require("../middleware/validation/Products");
 
+const {
+  validateDeductionDetails,
+  deductionValidation,
+} = require("../middleware/validation/Deductions");
+
+const {
+  validateExpensesDetails,
+  expensesValidation,
+} = require("../middleware/validation/Expenses");
+
+const {
+  validateAllowancesDetails,
+  allowancesValidation,
+} = require("../middleware/validation/Allowances");
+
 const uploads = require("../multer");
 
 router.post(
@@ -24,6 +39,7 @@ router.post(
   isAuth,
   isVerified,
   uploads.single("product_photo"),
+  isAdmin,
   Dashboard_Controllers.Dashboard_Upload_Profile_Pic
 );
 router.post(
@@ -34,6 +50,13 @@ router.post(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Staff_Entry
+);
+router.patch(
+  "/update-employee-data/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Update_Employee
 );
 router.get(
   "/employee-data",
@@ -59,7 +82,13 @@ router.post(
   isAdmin,
   Dashboard_Controllers.Dashboard_New_Item
 );
-
+router.patch(
+  "/update-product-data/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Update_Item
+);
 router.delete(
   "/delete-item/:id",
   isAuth,
@@ -72,6 +101,7 @@ router.get(
   "/add-to-cart/:id",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_Add_To_Cart
 );
 
@@ -79,6 +109,7 @@ router.get(
   "/reduce-cart-items/:id",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_Reduce_Cart_Items
 );
 
@@ -86,6 +117,7 @@ router.get(
   "/remove-item/:id",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_Remove_Items
 );
 
@@ -93,6 +125,7 @@ router.get(
   "/shopping-cart",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_Shopping_Cart_Details
 );
 
@@ -102,6 +135,7 @@ router.post(
   checkoutValidation,
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_Checkout
 );
 
@@ -109,6 +143,7 @@ router.get(
   "/all-products",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_All_Products
 );
 
@@ -116,7 +151,77 @@ router.get(
   "/all-orders",
   isAuth,
   isVerified,
+  isAdmin,
   Dashboard_Controllers.Dashboard_All_Orders
 );
 
+router.get(
+  "/deduction-data",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Deductions_Data
+);
+router.post(
+  "/deduction-entry",
+  validateDeductionDetails,
+  deductionValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Deductions_Entry
+);
+router.patch(
+  "/update-deduction/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Deductions_Update
+);
+router.get(
+  "/expenses-records",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Expenses
+);
+router.post(
+  "/expenses",
+  validateExpensesDetails,
+  expensesValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Expenses_Entry
+);
+router.patch(
+  "/update-expenses/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Expenses_Update
+);
+router.get(
+  "/allowances",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Allowance
+);
+router.post(
+  "/allowances-entry",
+  validateAllowancesDetails,
+  allowancesValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Allowances_Entry
+);
+router.patch(
+  "/update-allowances/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Allowances_Update
+);
 module.exports = router;
