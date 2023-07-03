@@ -299,7 +299,7 @@ const Dashboard_Add_To_Cart = async (req, res) => {
         req.session.cart = cart;
         console.log(req.session.cart);
         res.status(200).json({
-          cart,
+          cart: req.session.cart,
           success: true,
           message: `The item has been successfully added to cart`,
         });
@@ -361,6 +361,7 @@ const Dashboard_Shopping_Cart_Details = (req, res) => {
     message: `A shopping cart session exists`,
     products: cart.generateArray(),
     totalPrice: cart.totalPrice,
+    cart,
   });
 };
 

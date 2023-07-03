@@ -25,7 +25,13 @@ const server = app.listen(process.env.APP_PORT, () => {
 
 //middleware and static files
 app.use(morgan("dev"));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
+    credentials: true,
+  })
+);
 app.use("/", express.static("uploads"));
 app.use("/", express.static("uploads/profile_pics"));
 app.use("/", express.static("uploads/products"));
@@ -41,6 +47,7 @@ app.use(
       mongoUrl: process.env.DBURI,
     }),
     cookie: {
+      // secure: false,
       maxAge: 180 * 60 * 1000,
     },
   })
@@ -49,6 +56,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(function (req, res, next) {
   res.locals.session = req.session;
+  req.session.save();
   next();
 });
 
