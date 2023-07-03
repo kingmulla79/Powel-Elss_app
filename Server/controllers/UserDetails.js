@@ -191,6 +191,7 @@ const User_Login_User = async (req, res) => {
         const result = await saved_user.comparePassword(req.body.password);
         if (result) {
           console.log(saved_user);
+          req.session.authenticated = true;
           const token = jwt.sign(
             { user_id: saved_user._id },
             process.env.JWT_SECRET,
@@ -217,6 +218,7 @@ const User_Login_User = async (req, res) => {
             message: "Login successful",
             authorization: token,
             user: saved_user.email,
+            session: req.session,
           });
         } else {
           console.log("Error");
