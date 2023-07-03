@@ -5,6 +5,8 @@ const Product = require("../models/Products");
 const Allowances = require("../models/Allowances");
 const Expenses = require("../models/Expenses");
 const Deductions = require("../models/Deductions");
+const Service = require("../models/ServiceForm");
+const ServiceInvoice = require("../models/ServiceInvoice");
 const Cart = require("../models/Cart");
 const path = require("path");
 
@@ -716,6 +718,66 @@ const Dashboard_Allowances_Update = async (req, res) => {
     });
 };
 
+const Dashboard_Service_Details = async (req, res) => {
+  try {
+    const serviceInvoice = new ServiceInvoice({
+      invoice_code: req.body.invoice_code,
+      date: req.body.date,
+      time: req.body.time,
+      work_duration: req.body.work_duration,
+      cost: req.body.cost,
+    });
+
+    serviceInvoice
+      .save()
+      .then((result) => {
+        console.log("Successful service invoice entry");
+
+        const serviceInvoiceId = result._id;
+        const service = new Service({
+          client_name: req.body.client_name,
+          work_location: req.body.work_location,
+          requested_by: req.body.requested_by,
+          scope: req.body.scope,
+          scope_description: req.body.scope_description,
+          payment_details: serviceInvoiceId,
+          employee_details: req.body.employee_details,
+        });
+
+        service
+          .save()
+          .then((result) => {
+            console.log("Successful service entry");
+            res.status(201).json({
+              success: true,
+              message: "Successful service entry",
+              result,
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(401).json({
+              success: false,
+              message: "Error in service entry process.Try again",
+            });
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in service invoice entry process.Try again",
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The service entry attempt failed",
+      error: error,
+    });
+  }
+};
+
 module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
@@ -741,4 +803,5 @@ module.exports = {
   Dashboard_Allowance,
   Dashboard_Allowances_Entry,
   Dashboard_Allowances_Update,
+  Dashboard_Service_Details,
 };
