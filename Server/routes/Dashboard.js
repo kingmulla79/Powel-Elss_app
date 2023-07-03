@@ -32,6 +32,11 @@ const {
   allowancesValidation,
 } = require("../middleware/validation/Allowances");
 
+const {
+  validateServiceDetails,
+  serviceValidation,
+} = require("../middleware/validation/ServiceForm");
+
 const uploads = require("../multer");
 
 router.post(
@@ -223,5 +228,14 @@ router.patch(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Allowances_Update
+);
+router.post(
+  "/service-form",
+  validateServiceDetails,
+  serviceValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Service_Details
 );
 module.exports = router;
