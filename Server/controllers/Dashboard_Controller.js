@@ -368,6 +368,15 @@ const Dashboard_Shopping_Cart_Details = (req, res) => {
 };
 
 const Dashboard_Checkout = async (req, res) => {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  let mm = today.getMonth() + 1; // Months start at 0!
+  let dd = today.getDate();
+
+  if (dd < 10) dd = "0" + dd;
+  if (mm < 10) mm = "0" + mm;
+
+  const formattedToday = dd + "/" + mm + "/" + yyyy;
   if (!req.session.cart) {
     res.status(401).json({
       success: false,
@@ -380,7 +389,7 @@ const Dashboard_Checkout = async (req, res) => {
     user: req.user,
     cart: cart,
     address: req.body.address,
-    date: req.body.date,
+    date: formattedToday,
     name: req.body.name,
   });
   Order.save()
@@ -574,8 +583,6 @@ const Dashboard_Expenses_Entry = async (req, res) => {
       total_cost: req.body.total_cost,
       recorded_by: req.body.recorded_by,
       date: req.body.date,
-      advances: req.body.advances,
-      taxes: req.body.taxes,
     });
 
     expenses
