@@ -20,7 +20,7 @@ const OrdersSchema = new Schema(
       required: true,
     },
     date: {
-      type: Date,
+      type: String,
     },
   },
   { timestamps: true }
