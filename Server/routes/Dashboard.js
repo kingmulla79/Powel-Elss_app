@@ -153,6 +153,14 @@ router.get(
 );
 
 router.get(
+  "/orders/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Order_Details
+);
+
+router.get(
   "/all-orders",
   isAuth,
   isVerified,
