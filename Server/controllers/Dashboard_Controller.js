@@ -434,6 +434,23 @@ const Dashboard_All_Products = async (req, res) => {
     });
   }
 };
+const Dashboard_Order_Details = async (req, res) => {
+  try {
+    await Orders.findById(req.params.id).then((result) => {
+      res.status(201).json({
+        success: true,
+        message: "The order details have been successfully fetched",
+        result,
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching order information",
+      error: error,
+    });
+  }
+};
 
 const Dashboard_All_Orders = async (req, res) => {
   try {
@@ -800,6 +817,7 @@ module.exports = {
   Dashboard_Shopping_Cart_Details,
   Dashboard_Checkout,
   Dashboard_All_Products,
+  Dashboard_Order_Details,
   Dashboard_All_Orders,
   Dashboard_Deductions_Data,
   Dashboard_Deductions_Entry,
