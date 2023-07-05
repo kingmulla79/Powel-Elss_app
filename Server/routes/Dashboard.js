@@ -175,6 +175,13 @@ router.get(
   isAdmin,
   Dashboard_Controllers.Dashboard_Deductions_Data
 );
+router.get(
+  "/deduction-data/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Deductions_Data
+);
 router.post(
   "/deduction-entry",
   validateDeductionDetails,
@@ -198,6 +205,13 @@ router.get(
   isAdmin,
   Dashboard_Controllers.Dashboard_Expenses
 );
+router.get(
+  "/expenses-record/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Expenses
+);
 router.post(
   "/expenses",
   validateExpensesDetails,
@@ -220,6 +234,13 @@ router.get(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Allowance
+);
+router.get(
+  "/allowance/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Allowance
 );
 router.post(
   "/allowances-entry",
