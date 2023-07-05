@@ -503,6 +503,31 @@ const Dashboard_Deductions_Data = async (req, res) => {
   }
 };
 
+const Dashboard_Single_Deductions_Data = async (req, res) => {
+  try {
+    await Deductions.findById(req.params.id).then((result) => {
+      if (result) {
+        res.status(201).json({
+          allowances: result,
+          success: true,
+          message: "The deductions details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no deduction stored yet with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching deduction information",
+      error: error,
+    });
+  }
+};
+
 const Dashboard_Deductions_Entry = async (req, res) => {
   try {
     const deduction = new Deductions({
@@ -592,6 +617,31 @@ const Dashboard_Expenses = async (req, res) => {
   }
 };
 
+const Dashboard_Single_Expenses = async (req, res) => {
+  try {
+    await Expenses.findById(req.params.id).then((result) => {
+      if (result) {
+        res.status(201).json({
+          expense: result,
+          success: true,
+          message: "The expense details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no expenses stored yet with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching expenses information",
+      error: error,
+    });
+  }
+};
+
 const Dashboard_Expenses_Entry = async (req, res) => {
   try {
     const expenses = new Expenses({
@@ -666,6 +716,31 @@ const Dashboard_Allowance = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "There are no allowances stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching allowances information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Single_Allowance = async (req, res) => {
+  try {
+    await Allowances.findById(req.params.id).then((result) => {
+      if (result) {
+        res.status(201).json({
+          allowances: result,
+          success: true,
+          message: "The allowances details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no allowances stored yet with the specified id",
         });
       }
     });
@@ -820,12 +895,15 @@ module.exports = {
   Dashboard_Order_Details,
   Dashboard_All_Orders,
   Dashboard_Deductions_Data,
+  Dashboard_Single_Deductions_Data,
   Dashboard_Deductions_Entry,
   Dashboard_Deductions_Update,
   Dashboard_Expenses,
+  Dashboard_Single_Expenses,
   Dashboard_Expenses_Entry,
   Dashboard_Expenses_Update,
   Dashboard_Allowance,
+  Dashboard_Single_Allowance,
   Dashboard_Allowances_Entry,
   Dashboard_Allowances_Update,
   Dashboard_Service_Details,
