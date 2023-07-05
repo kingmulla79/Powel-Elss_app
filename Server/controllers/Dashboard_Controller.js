@@ -505,7 +505,7 @@ const Dashboard_Deductions_Data = async (req, res) => {
 
 const Dashboard_Single_Deductions_Data = async (req, res) => {
   try {
-    await Deductions.findById(req.params.id).then((result) => {
+    await Deductions.find({ id_no: req.params.id }).then((result) => {
       if (result) {
         res.status(201).json({
           allowances: result,
@@ -730,7 +730,7 @@ const Dashboard_Allowance = async (req, res) => {
 
 const Dashboard_Single_Allowance = async (req, res) => {
   try {
-    await Allowances.findById(req.params.id).then((result) => {
+    await Allowances.find({ id_no: req.params.id }).then((result) => {
       if (result) {
         res.status(201).json({
           allowances: result,
