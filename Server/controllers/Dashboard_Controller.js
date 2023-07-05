@@ -395,6 +395,12 @@ const Dashboard_Checkout = async (req, res) => {
   Order.save()
     .then((result) => {
       console.log("Order details successfully saved");
+      req.session.cart = null;
+      res.status(201).json({
+        success: true,
+        message: "The payment is successfully made",
+        result,
+      });
     })
     .catch((error) => {
       res.status(400).json({
@@ -402,12 +408,6 @@ const Dashboard_Checkout = async (req, res) => {
         message: "An error occured while saving the order details",
       });
     });
-  req.session.cart = null;
-  res.status(201).json({
-    cart,
-    success: true,
-    message: "The payment is successfully made",
-  });
 };
 
 const Dashboard_All_Products = async (req, res) => {
