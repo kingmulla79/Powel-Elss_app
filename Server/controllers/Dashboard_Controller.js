@@ -8,6 +8,7 @@ const Deductions = require("../models/Deductions");
 const Service = require("../models/ServiceForm");
 const ServiceInvoice = require("../models/ServiceInvoice");
 const Cart = require("../models/Cart");
+const Payroll = require("../models/Payroll");
 const path = require("path");
 
 const Dashboard_Upload_Profile_Pic = async (req, res) => {
@@ -70,6 +71,7 @@ const Dashboard_Staff_Entry = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in registration.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -105,6 +107,31 @@ const Dashboard_Update_Employee = async (req, res) => {
         error: error,
       });
     });
+};
+const Dashboard_Single_Employee = async (req, res) => {
+  try {
+    await EmployeeDetails.find({ id_no: req.params.id }).then((result) => {
+      if (result) {
+        res.status(201).json({
+          employee: result,
+          success: true,
+          message: "The employee details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message:
+            "There is no employee record stored yet with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching employee information",
+      error: error,
+    });
+  }
 };
 
 const Dashboard_Staff_Data = async (req, res) => {
@@ -204,6 +231,7 @@ const Dashboard_New_Item = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in entry process.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -406,6 +434,7 @@ const Dashboard_Checkout = async (req, res) => {
       res.status(400).json({
         success: false,
         message: "An error occured while saving the order details",
+        error,
       });
     });
 };
@@ -505,20 +534,23 @@ const Dashboard_Deductions_Data = async (req, res) => {
 
 const Dashboard_Single_Deductions_Data = async (req, res) => {
   try {
-    await Deductions.find({ id_no: req.params.id }).then((result) => {
-      if (result) {
-        res.status(201).json({
-          allowances: result,
-          success: true,
-          message: "The deductions details have been successfully fetched",
-        });
-      } else {
-        res.status(401).json({
-          success: false,
-          message: "There are no deduction stored yet with the specified id",
-        });
-      }
-    });
+    await Deductions.find({ id_no: req.params.id })
+      .sort({ $natural: -1 })
+      .limit(1)
+      .then((result) => {
+        if (result) {
+          res.status(201).json({
+            allowances: result,
+            success: true,
+            message: "The deductions details have been successfully fetched",
+          });
+        } else {
+          res.status(401).json({
+            success: false,
+            message: "There are no deduction stored yet with the specified id",
+          });
+        }
+      });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -555,6 +587,7 @@ const Dashboard_Deductions_Entry = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in deduction entry process.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -667,6 +700,7 @@ const Dashboard_Expenses_Entry = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in expenses entry process.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -730,20 +764,23 @@ const Dashboard_Allowance = async (req, res) => {
 
 const Dashboard_Single_Allowance = async (req, res) => {
   try {
-    await Allowances.find({ id_no: req.params.id }).then((result) => {
-      if (result) {
-        res.status(201).json({
-          allowances: result,
-          success: true,
-          message: "The allowances details have been successfully fetched",
-        });
-      } else {
-        res.status(401).json({
-          success: false,
-          message: "There are no allowances stored yet with the specified id",
-        });
-      }
-    });
+    await Allowances.find({ id_no: req.params.id })
+      .sort({ $natural: -1 })
+      .limit(1)
+      .then((result) => {
+        if (result) {
+          res.status(201).json({
+            allowances: result,
+            success: true,
+            message: "The allowances details have been successfully fetched",
+          });
+        } else {
+          res.status(401).json({
+            success: false,
+            message: "There are no allowances stored yet with the specified id",
+          });
+        }
+      });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -780,6 +817,7 @@ const Dashboard_Allowances_Entry = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in allowances entry process.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -858,6 +896,7 @@ const Dashboard_Service_Details = async (req, res) => {
             res.status(401).json({
               success: false,
               message: "Error in service entry process.Try again",
+              err,
             });
           });
       })
@@ -866,6 +905,7 @@ const Dashboard_Service_Details = async (req, res) => {
         res.status(401).json({
           success: false,
           message: "Error in service invoice entry process.Try again",
+          err,
         });
       });
   } catch (error) {
@@ -877,10 +917,73 @@ const Dashboard_Service_Details = async (req, res) => {
   }
 };
 
+const Dashboard_Payroll_Entry = async (req, res) => {
+  try {
+    const payroll = new Payroll({
+      id_no: req.body.id_no,
+      net_salary: req.body.net_salary,
+      remitted_amount: req.body.remitted_amount,
+      outstanding_amount: req.body.outstanding_amount,
+      date_of_payment: req.body.date_of_payment,
+    });
+
+    payroll
+      .save()
+      .then((result) => {
+        console.log("Successful payroll entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful payroll entry",
+          result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in payroll entry process.Try again",
+          err,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The payroll entry attempt failed",
+      error: error,
+    });
+  }
+};
+const Dashboard_Payroll_Update = async (req, res) => {
+  await Payroll.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The payroll record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The payroll data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The payroll update attempt failed",
+        error: error,
+      });
+    });
+};
+
 module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
   Dashboard_Update_Employee,
+  Dashboard_Single_Employee,
   Dashboard_Staff_Data,
   Dashboard_Delete_Employee,
   Dashboard_New_Item,
@@ -907,4 +1010,6 @@ module.exports = {
   Dashboard_Allowances_Entry,
   Dashboard_Allowances_Update,
   Dashboard_Service_Details,
+  Dashboard_Payroll_Entry,
+  Dashboard_Payroll_Update,
 };

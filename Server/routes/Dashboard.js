@@ -37,6 +37,11 @@ const {
   serviceValidation,
 } = require("../middleware/validation/ServiceForm");
 
+const {
+  validatePayrollDetails,
+  payrollValidation,
+} = require("../middleware/validation/Payroll");
+
 const uploads = require("../multer");
 
 router.post(
@@ -62,6 +67,13 @@ router.patch(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Update_Employee
+);
+router.get(
+  "/single-employee/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Employee
 );
 router.get(
   "/employee-data",
@@ -267,4 +279,21 @@ router.post(
   isAdmin,
   Dashboard_Controllers.Dashboard_Service_Details
 );
+router.post(
+  "/payroll-entry",
+  validatePayrollDetails,
+  payrollValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Payroll_Entry
+);
+router.patch(
+  "/update-payroll/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Payroll_Update
+);
+
 module.exports = router;
