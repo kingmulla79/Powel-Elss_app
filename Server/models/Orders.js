@@ -11,7 +11,7 @@ const OrdersSchema = new Schema(
       type: Object,
       required: true,
     },
-    address: {
+    phone_number: {
       type: String,
       required: true,
     },

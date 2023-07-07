@@ -55,6 +55,7 @@ const Dashboard_Staff_Entry = async (req, res) => {
       phone_no: req.body.phone_no,
       job_title: req.body.job_title,
       P_no: req.body.P_no,
+      basic_salary: req.body.basic_salary,
     });
     employee
       .save()
@@ -416,7 +417,7 @@ const Dashboard_Checkout = async (req, res) => {
   const Order = new Orders({
     user: req.user,
     cart: cart,
-    address: req.body.address,
+    phone_number: req.body.phone_number,
     date: formattedToday,
     name: req.body.name,
   });
@@ -978,6 +979,105 @@ const Dashboard_Payroll_Update = async (req, res) => {
       });
     });
 };
+const Dashboard_Service_Invoice = async (req, res) => {
+  try {
+    await ServiceInvoice.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          service_invoices: result,
+          success: true,
+          message:
+            "All the service invoice records have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no service invoice records stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching service invoice records",
+      error: error,
+    });
+  }
+};
+const Dashboard_Service_Form = async (req, res) => {
+  try {
+    await Service.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          service_forms: result,
+          success: true,
+          message:
+            "All the service form records have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no service form records stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching service form records",
+      error: error,
+    });
+  }
+};
+const Dashboard_Single_Service_Invoice = async (req, res) => {
+  try {
+    await ServiceInvoice.findById(req.params.id).then((result) => {
+      if (result) {
+        res.status(201).json({
+          service_invoices: result,
+          success: true,
+          message: "The service invoice record has been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There is no service invoice record with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching the service invoice record",
+      error: error,
+    });
+  }
+};
+const Dashboard_Single_Service_Form = async (req, res) => {
+  try {
+    await Service.findById(req.params.id).then((result) => {
+      if (result) {
+        res.status(201).json({
+          service_forms: result,
+          success: true,
+          message: "The service form record has been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message:
+            "There is no service form record stored yet with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching the service form record",
+      error: error,
+    });
+  }
+};
 
 module.exports = {
   Dashboard_Upload_Profile_Pic,
@@ -1012,4 +1112,8 @@ module.exports = {
   Dashboard_Service_Details,
   Dashboard_Payroll_Entry,
   Dashboard_Payroll_Update,
+  Dashboard_Service_Form,
+  Dashboard_Service_Invoice,
+  Dashboard_Single_Service_Form,
+  Dashboard_Single_Service_Invoice,
 };

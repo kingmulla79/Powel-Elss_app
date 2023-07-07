@@ -295,5 +295,32 @@ router.patch(
   isAdmin,
   Dashboard_Controllers.Dashboard_Payroll_Update
 );
-
+router.get(
+  "/service-form-data",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Service_Form
+);
+router.get(
+  "/service-invoice",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Service_Invoice
+);
+router.get(
+  "/service-form-data/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Service_Form
+);
+router.get(
+  "/service-invoice/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Service_Invoice
+);
 module.exports = router;

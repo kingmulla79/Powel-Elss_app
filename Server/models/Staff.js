@@ -26,6 +26,10 @@ const employeeSchema = new Schema({
     type: String,
     required: true,
   },
+  basic_salary: {
+    type: Number,
+    required: true,
+  },
 });
 employeeSchema.statics.isThisIdInUse = async function (id_no) {
   if (!id_no) throw new Error("Invalid id number: No id provided");

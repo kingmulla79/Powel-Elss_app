@@ -22,6 +22,9 @@ exports.validateEmployeeEntry = [
     .withMessage("last name is required"),
   check("phone_no")
     .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The phone number is required")
     .isInt()
     .withMessage("Only uses numbers for your phone number")
     .isLength({ min: 10, max: 10 })
@@ -32,6 +35,13 @@ exports.validateEmployeeEntry = [
     .isEmpty()
     .withMessage("Job title is required"),
   check("P_no").trim().not().isEmpty().withMessage("Job title is required"),
+  check("basic_salary")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The basic salary is required")
+    .isInt()
+    .withMessage("Only uses numbers for your the basic salary"),
 ];
 
 exports.employeeValidation = (req, res, next) => {
