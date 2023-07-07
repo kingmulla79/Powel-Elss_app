@@ -1,11 +1,13 @@
 const { check, validationResult } = require("express-validator");
 
 exports.validateCheckout = [
-  check("address")
+  check("phone_number")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("address is required to complete the checkout process"),
+    .withMessage("phone number is required to complete the checkout process")
+    .isInt()
+    .withMessage("Only uses numbers for the phone number"),
   check("name")
     .trim()
     .not()

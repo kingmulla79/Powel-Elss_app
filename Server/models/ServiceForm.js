@@ -28,7 +28,7 @@ const ServiceSchema = new Schema(
       ref: "ServiceInvoice",
     },
     employee_details: {
-      type: Object,
+      type: Array,
     },
   },
   { timestamps: true }
