@@ -19,11 +19,7 @@ exports.validateExpensesDetails = [
     .not()
     .isEmpty()
     .withMessage("The person who recorded is required for identification"),
-  check("date")
-    .trim()
-    .not()
-    .isEmpty()
-    .withMessage("The NSSF amount is required"),
+  check("date").trim().not().isEmpty().withMessage("The date is required"),
 ];
 
 exports.expensesValidation = (req, res, next) => {

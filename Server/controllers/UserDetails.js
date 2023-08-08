@@ -35,8 +35,6 @@ const User_Register_User = async (req, res) => {
 
     console.log(newuser_id);
 
-    const subject = `Powel-Elss Inc. Sign up`;
-    const text = `Your account has been successfully created. Please verify your email using this link`;
     sendVerificationEmail(newuser_id[0]._id, user_email, res)
       .then((result) => {
         res.status(201).json({
@@ -114,7 +112,7 @@ const User_Verify_User = async (req, res) => {
                       .then(() => {
                         res.status(201).json({
                           success: true,
-                          message: `Successfully verified. You can now login ${result.message}`,
+                          message: `Successfully verified. You can now login`,
                           redirect: "/api/auth/login",
                         });
                       })

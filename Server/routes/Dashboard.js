@@ -42,6 +42,16 @@ const {
   payrollValidation,
 } = require("../middleware/validation/Payroll");
 
+const {
+  validateCustomerRegistration,
+  customerValidation,
+} = require("../middleware/validation/Customer");
+
+const {
+  validateQuotationDetails,
+  quotationValidation,
+} = require("../middleware/validation/Quotation");
+
 const uploads = require("../multer");
 
 router.post(
@@ -322,5 +332,51 @@ router.get(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Single_Service_Invoice
+);
+router.post(
+  "/customer-entry",
+  validateCustomerRegistration,
+  customerValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Customer_Entry
+);
+router.get(
+  "/customer-details",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Customer_Details
+);
+router.get(
+  "/customer-details/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Customer_Details
+);
+router.post(
+  "/quotation",
+  validateQuotationDetails,
+  quotationValidation,
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Invoice
+);
+router.get(
+  "/quotation-data",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Data
+);
+router.get(
+  "/quotation-data/:invoice",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Single_Quotation_Data
 );
 module.exports = router;

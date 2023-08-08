@@ -9,6 +9,8 @@ const Service = require("../models/ServiceForm");
 const ServiceInvoice = require("../models/ServiceInvoice");
 const Cart = require("../models/Cart");
 const Payroll = require("../models/Payroll");
+const Customer = require("../models/Customer");
+const Quotation = require("../models/QuotationInvoive");
 const path = require("path");
 
 const Dashboard_Upload_Profile_Pic = async (req, res) => {
@@ -111,7 +113,7 @@ const Dashboard_Update_Employee = async (req, res) => {
 };
 const Dashboard_Single_Employee = async (req, res) => {
   try {
-    await EmployeeDetails.find({ id_no: req.params.id }).then((result) => {
+    await EmployeeDetails.findById(req.params.id).then((result) => {
       if (result) {
         res.status(201).json({
           employee: result,
@@ -138,7 +140,7 @@ const Dashboard_Single_Employee = async (req, res) => {
 const Dashboard_Staff_Data = async (req, res) => {
   try {
     const employees = await EmployeeDetails.find({});
-    if (employees) {
+    if (employees.length > 0) {
       console.log(employees);
       res.status(200).json({
         status: true,
@@ -148,7 +150,7 @@ const Dashboard_Staff_Data = async (req, res) => {
     } else {
       res.status(400).json({
         status: false,
-        message: `Bad request`,
+        message: `No employee data was found`,
       });
     }
   } catch (error) {
@@ -361,6 +363,7 @@ const Dashboard_Reduce_Cart_Items = (req, res) => {
   res.status(200).json({
     success: true,
     message: `The items reduction operation from the cart was successful`,
+    cart: req.session.cart,
     redirect: req.session.oldURL,
   });
 };
@@ -385,59 +388,69 @@ const Dashboard_Shopping_Cart_Details = (req, res) => {
       success: false,
       message: `No shopping cart session: No items in the shopping cart`,
     });
+  } else {
+    let cart = new Cart(req.session.cart);
+    res.status(201).json({
+      success: true,
+      message: `A shopping cart session exists`,
+      products: cart.generateArray(),
+      totalPrice: cart.totalPrice,
+      cart,
+    });
   }
-  let cart = new Cart(req.session.cart);
-  res.status(201).json({
-    success: true,
-    message: `A shopping cart session exists`,
-    products: cart.generateArray(),
-    totalPrice: cart.totalPrice,
-    cart,
-  });
 };
 
 const Dashboard_Checkout = async (req, res) => {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  let mm = today.getMonth() + 1; // Months start at 0!
-  let dd = today.getDate();
+  try {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    let mm = today.getMonth() + 1; // Months start at 0!
+    let dd = today.getDate();
 
-  if (dd < 10) dd = "0" + dd;
-  if (mm < 10) mm = "0" + mm;
+    if (dd < 10) dd = "0" + dd;
+    if (mm < 10) mm = "0" + mm;
 
-  const formattedToday = dd + "/" + mm + "/" + yyyy;
-  if (!req.session.cart) {
-    res.status(401).json({
+    const formattedToday = dd + "/" + mm + "/" + yyyy;
+    if (!req.session.cart) {
+      res.status(401).json({
+        success: false,
+        message: `No shopping cart available`,
+      });
+    } else {
+      var cart = new Cart(req.session.cart);
+
+      const Order = new Orders({
+        user: req.user,
+        cart: cart,
+        phone_number: req.body.phone_number,
+        date: formattedToday,
+        name: req.body.name,
+      });
+      Order.save()
+        .then((result) => {
+          console.log("Order details successfully saved");
+          req.session.cart = null;
+          res.status(201).json({
+            success: true,
+            message: "The payment is successfully made",
+            result,
+          });
+        })
+        .catch((error) => {
+          res.status(400).json({
+            success: false,
+            message: "An error occured while saving the order details",
+            error,
+          });
+        });
+    }
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: `No shopping cart available`,
+      message: "Server Error: error while processing checkout information",
+      error: error,
     });
   }
-  var cart = new Cart(req.session.cart);
-
-  const Order = new Orders({
-    user: req.user,
-    cart: cart,
-    phone_number: req.body.phone_number,
-    date: formattedToday,
-    name: req.body.name,
-  });
-  Order.save()
-    .then((result) => {
-      console.log("Order details successfully saved");
-      req.session.cart = null;
-      res.status(201).json({
-        success: true,
-        message: "The payment is successfully made",
-        result,
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        success: false,
-        message: "An error occured while saving the order details",
-        error,
-      });
-    });
 };
 
 const Dashboard_All_Products = async (req, res) => {
@@ -769,7 +782,7 @@ const Dashboard_Single_Allowance = async (req, res) => {
       .sort({ $natural: -1 })
       .limit(1)
       .then((result) => {
-        if (result) {
+        if (result.length > 0) {
           res.status(201).json({
             allowances: result,
             success: true,
@@ -1079,6 +1092,228 @@ const Dashboard_Single_Service_Form = async (req, res) => {
   }
 };
 
+const Dashboard_Customer_Entry = async (req, res) => {
+  try {
+    const customer = new Customer({
+      name: req.body.name,
+      address: req.body.address,
+      email: req.body.email,
+      contact_person: req.body.contact_person,
+    });
+
+    customer
+      .save()
+      .then((result) => {
+        console.log("Successful customer entry");
+        res.status(201).json({
+          success: true,
+          message: "Successful customer entry",
+          result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(401).json({
+          success: false,
+          message: "Error in customer entry process.Try again",
+          err,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The customer entry attempt failed",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Customer_Details = async (req, res) => {
+  try {
+    await Customer.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          customers: result,
+          success: true,
+          message: "All the customer records have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There is no customer record stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching customer records",
+      error: error,
+    });
+  }
+};
+const Dashboard_Single_Customer_Details = async (req, res) => {
+  try {
+    await Customer.findById(req.params.id).then((result) => {
+      if (result) {
+        req.session.customer = result;
+        res.status(201).json({
+          customer: req.session.customer,
+          success: true,
+          message: "The customer record has been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There is no customer record with the specified id",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching the customer record",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Quotation_Invoice = async (req, res) => {
+  try {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    let mm = today.getMonth() + 1; // Months start at 0!
+    let dd = today.getDate();
+
+    if (dd < 10) dd = "0" + dd;
+    if (mm < 10) mm = "0" + mm;
+
+    const formattedToday = dd + "/" + mm + "/" + yyyy;
+    if (!req.session.cart) {
+      res.status(401).json({
+        success: false,
+        message: `No shopping cart available`,
+      });
+    } else if (!req.session.customer) {
+      res.status(401).json({
+        success: false,
+        message: `No customer selected`,
+      });
+    } else {
+      var cart = new Cart(req.session.cart);
+      const customer_details = req.session.customer;
+      console.log(customer_details._id);
+      await Customer.findById(customer_details._id).then(async (result) => {
+        if (result) {
+          let oldInvoices = result.invoice_history || [];
+
+          await Customer.findByIdAndUpdate(customer_details._id, {
+            invoice_history: [...oldInvoices, req.body.invoice_code],
+          });
+          console.log("Invoice codes successfully updated");
+          if (req.body.contact_person) {
+            await Customer.findByIdAndUpdate(customer_details._id, {
+              contact_person: req.body.contact_person,
+            });
+          }
+        } else {
+          res.status(401).json({
+            success: false,
+            message: "There is no customer record with the specified id",
+          });
+        }
+      });
+
+      const quotation = new Quotation({
+        invoice_code: req.body.invoice_code,
+        date: formattedToday,
+        due_date: req.body.due_date,
+        quotations_details: cart,
+        terms: req.body.terms,
+      });
+      quotation
+        .save()
+        .then((result) => {
+          console.log("Quotation details successfully saved");
+          req.session.customer = null;
+          req.session.cart = null;
+          res.status(201).json({
+            success: true,
+            message: "Quotation details successfully saved",
+            result,
+          });
+        })
+        .catch((error) => {
+          res.status(400).json({
+            success: false,
+            message: "An error occured while saving the quotation details",
+            error,
+          });
+        });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while processing quotation information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Quotation_Data = async (req, res) => {
+  try {
+    await Quotation.find().then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          allowances: result,
+          success: true,
+          message: "The quotation details have been successfully fetched",
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "There are no deduction stored yet",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching quotation information",
+      error: error,
+    });
+  }
+};
+
+const Dashboard_Single_Quotation_Data = async (req, res) => {
+  try {
+    await Quotation.find({ invoice_code: req.params.invoice })
+      .sort({ $natural: -1 })
+      .limit(1)
+      .then((result) => {
+        if (result.length > 0) {
+          res.status(201).json({
+            allowances: result,
+            success: true,
+            message: "The quotation details have been successfully fetched",
+          });
+        } else {
+          res.status(401).json({
+            success: false,
+            message:
+              "There are no quotation stored yet with the specified invoice code",
+          });
+        }
+      });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching quotation information",
+      error: error,
+    });
+  }
+};
+
 module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
@@ -1116,4 +1351,10 @@ module.exports = {
   Dashboard_Service_Invoice,
   Dashboard_Single_Service_Form,
   Dashboard_Single_Service_Invoice,
+  Dashboard_Customer_Entry,
+  Dashboard_Customer_Details,
+  Dashboard_Single_Customer_Details,
+  Dashboard_Quotation_Invoice,
+  Dashboard_Quotation_Data,
+  Dashboard_Single_Quotation_Data,
 };

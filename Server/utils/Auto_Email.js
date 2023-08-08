@@ -59,7 +59,7 @@ function sendVerificationEmail(id, email, res) {
           userId: id,
           uniqueString: hashedUniqueString,
           createdAt: Date.now(),
-          expiresAt: Date.now() + 21600000,
+          expiresAt: Date.now() + 21600, //link expires in 6 hours
         });
         newVerification
           .save()
