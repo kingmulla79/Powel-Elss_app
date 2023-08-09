@@ -19,9 +19,7 @@ const CustomerSchema = new Schema(
       type: String,
       required: true,
     },
-    invoice_history: {
-      type: Array,
-    },
+    invoice_history: [{ type: Object }],
   },
   { timestamps: true }
 );

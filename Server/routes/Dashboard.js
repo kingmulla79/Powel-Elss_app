@@ -379,4 +379,18 @@ router.get(
   isAdmin,
   Dashboard_Controllers.Dashboard_Single_Quotation_Data
 );
+router.patch(
+  "/update-quotation/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Update
+);
+router.patch(
+  "/update-quotation-to-sale/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Update_To_Sale
+);
 module.exports = router;

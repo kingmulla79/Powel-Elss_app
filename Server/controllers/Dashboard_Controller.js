@@ -416,33 +416,86 @@ const Dashboard_Checkout = async (req, res) => {
         success: false,
         message: `No shopping cart available`,
       });
+    } else if (!req.session.customer) {
+      res.status(401).json({
+        success: false,
+        message: `No customer selected`,
+      });
     } else {
       var cart = new Cart(req.session.cart);
 
-      const Order = new Orders({
-        user: req.user,
-        cart: cart,
-        phone_number: req.body.phone_number,
-        date: formattedToday,
-        name: req.body.name,
-      });
-      Order.save()
-        .then((result) => {
-          console.log("Order details successfully saved");
-          req.session.cart = null;
-          res.status(201).json({
-            success: true,
-            message: "The payment is successfully made",
-            result,
+      const customer_details = req.session.customer;
+      console.log(customer_details._id);
+      await Customer.findById(customer_details._id).then(async (result) => {
+        if (result) {
+          let oldInvoices = result.invoice_history || [];
+          if (oldInvoices.length) {
+            oldInvoices = oldInvoices.filter((t) => {
+              if (oldInvoices.invoice_code !== req.body.invoice_code) {
+                return t;
+              }
+            });
+          }
+
+          await Customer.findByIdAndUpdate(customer_details._id, {
+            invoice_history: [
+              ...oldInvoices,
+              { invoice_code: req.body.invoice_code, status: "paid" },
+            ],
           });
-        })
-        .catch((error) => {
-          res.status(400).json({
+          console.log("Invoice codes successfully updated");
+          if (req.body.contact_person) {
+            await Customer.findByIdAndUpdate(customer_details._id, {
+              contact_person: req.body.contact_person,
+            });
+          }
+        } else {
+          res.status(401).json({
             success: false,
-            message: "An error occured while saving the order details",
-            error,
+            message: "There is no customer record with the specified id",
           });
-        });
+        }
+      });
+
+      await Quotation.find({ ref_code: req.body.invoice_code }).then(
+        (result) => {
+          if (result.length > 0) {
+            res.status(401).json({
+              success: false,
+              message: "An invoice record already has this code",
+            });
+          } else {
+            const Order = new Orders({
+              user: req.user,
+              invoice_code: req.body.invoice_code,
+              date: formattedToday,
+              product_details: cart,
+              terms: req.body.terms,
+              purchase_type: req.body.purchase_type,
+              discount: req.body.discount,
+              tax: req.body.tax,
+            });
+            Order.save()
+              .then((result) => {
+                console.log("Order details successfully saved");
+                req.session.cart = null;
+                req.session.customer = null;
+                res.status(201).json({
+                  success: true,
+                  message: "The payment is successfully made",
+                  result,
+                });
+              })
+              .catch((error) => {
+                res.status(400).json({
+                  success: false,
+                  message: "An error occured while saving the order details",
+                  error,
+                });
+              });
+          }
+        }
+      );
     }
   } catch (error) {
     res.status(500).json({
@@ -1206,9 +1259,19 @@ const Dashboard_Quotation_Invoice = async (req, res) => {
       await Customer.findById(customer_details._id).then(async (result) => {
         if (result) {
           let oldInvoices = result.invoice_history || [];
+          if (oldInvoices.length) {
+            oldInvoices = oldInvoices.filter((t) => {
+              if (oldInvoices.invoice_code !== req.body.ref_code) {
+                return t;
+              }
+            });
+          }
 
           await Customer.findByIdAndUpdate(customer_details._id, {
-            invoice_history: [...oldInvoices, req.body.invoice_code],
+            invoice_history: [
+              ...oldInvoices,
+              { invoice_code: req.body.ref_code, status: "quotation" },
+            ],
           });
           console.log("Invoice codes successfully updated");
           if (req.body.contact_person) {
@@ -1224,32 +1287,44 @@ const Dashboard_Quotation_Invoice = async (req, res) => {
         }
       });
 
-      const quotation = new Quotation({
-        invoice_code: req.body.invoice_code,
-        date: formattedToday,
-        due_date: req.body.due_date,
-        quotations_details: cart,
-        terms: req.body.terms,
-      });
-      quotation
-        .save()
-        .then((result) => {
-          console.log("Quotation details successfully saved");
-          req.session.customer = null;
-          req.session.cart = null;
-          res.status(201).json({
-            success: true,
-            message: "Quotation details successfully saved",
-            result,
-          });
-        })
-        .catch((error) => {
-          res.status(400).json({
+      await Quotation.find({ ref_code: req.body.ref_code }).then((result) => {
+        if (result.length > 0) {
+          res.status(401).json({
             success: false,
-            message: "An error occured while saving the quotation details",
-            error,
+            message: "A quotation record already has this reference code",
           });
-        });
+        } else {
+          const quotation = new Quotation({
+            ref_code: req.body.ref_code,
+            date: formattedToday,
+            due_date: req.body.due_date,
+            quotations_details: cart,
+            terms: req.body.terms,
+            quotation_type: req.body.quotation_type,
+            discount: req.body.discount,
+            tax: req.body.tax,
+          });
+          quotation
+            .save()
+            .then((result) => {
+              console.log("Quotation details successfully saved");
+              req.session.customer = null;
+              req.session.cart = null;
+              res.status(201).json({
+                success: true,
+                message: "Quotation details successfully saved",
+                result,
+              });
+            })
+            .catch((error) => {
+              res.status(400).json({
+                success: false,
+                message: "An error occured while saving the quotation details",
+                error,
+              });
+            });
+        }
+      });
     }
   } catch (error) {
     res.status(500).json({
@@ -1314,6 +1389,165 @@ const Dashboard_Single_Quotation_Data = async (req, res) => {
   }
 };
 
+const Dashboard_Quotation_Update = async (req, res) => {
+  await Quotation.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          message: "The quotation record was not updated",
+        });
+      }
+      res.status(200).json({
+        success: true,
+        message: `The quotation data is successfully updated`,
+        result,
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({
+        success: false,
+        message: "The quotation update attempt failed",
+        error: error,
+      });
+    });
+};
+
+const Dashboard_Quotation_Update_To_Sale = async (req, res) => {
+  try {
+    await Quotation.find({ _id: req.params.id }).then(async (result) => {
+      if (result.length > 0) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
+
+        if (dd < 10) dd = "0" + dd;
+        if (mm < 10) mm = "0" + mm;
+
+        const formattedToday = dd + "/" + mm + "/" + yyyy;
+        const details = [...result];
+        let invoice_code = "";
+        let product_details = {};
+        let terms = "";
+        let purchase_type = "";
+        let discount = 0;
+        let tax = 0;
+        details.forEach(function (element) {
+          invoice_code = element.ref_code;
+          product_details = element.quotations_details;
+          terms = element.terms;
+          purchase_type = element.quotation_type;
+          discount = element.discount;
+          tax = element.tax;
+        });
+        if (!req.session.customer) {
+          res.status(401).json({
+            success: false,
+            message: `No customer selected`,
+          });
+        } else {
+          const customer_details = req.session.customer;
+          console.log(customer_details._id);
+          await Customer.findById(customer_details._id).then(async (result) => {
+            if (result) {
+              let oldInvoices = result.invoice_history || [];
+              if (oldInvoices.length) {
+                oldInvoices = oldInvoices.filter((t) => {
+                  if (oldInvoices.invoice_code !== invoice_code) {
+                    return t;
+                  }
+                });
+              }
+
+              await Customer.findByIdAndUpdate(customer_details._id, {
+                invoice_history: [
+                  ...oldInvoices,
+                  { invoice_code: invoice_code, status: "paid" },
+                ],
+              });
+              console.log("Invoice codes successfully updated");
+              if (req.body.contact_person) {
+                await Customer.findByIdAndUpdate(customer_details._id, {
+                  contact_person: req.body.contact_person,
+                });
+              }
+            } else {
+              res.status(401).json({
+                success: false,
+                message: "There is no customer record with the specified id",
+              });
+            }
+          });
+
+          await Quotation.findByIdAndDelete(details[0]._id)
+            .then(async (result) => {
+              await Quotation.find({ ref_code: invoice_code }).then(
+                (result) => {
+                  if (result.length > 0) {
+                    res.status(401).json({
+                      success: false,
+                      message: "An invoice record already has this code",
+                    });
+                  } else {
+                    const Order = new Orders({
+                      user: req.user,
+                      invoice_code: invoice_code,
+                      date: formattedToday,
+                      product_details: product_details,
+                      terms: terms,
+                      purchase_type: purchase_type,
+                      discount: discount,
+                      tax: tax,
+                    });
+                    Order.save()
+                      .then((result) => {
+                        console.log("Order details successfully saved");
+                        req.session.cart = null;
+                        req.session.customer = null;
+                        res.status(201).json({
+                          success: true,
+                          message: "The payment is successfully made",
+                          result,
+                        });
+                      })
+                      .catch((error) => {
+                        res.status(400).json({
+                          success: false,
+                          message:
+                            "An error occured while saving the order details",
+                          error,
+                        });
+                      });
+                  }
+                }
+              );
+            })
+            .catch((err) => {
+              res.status(404).json({
+                success: false,
+                message: "Error while deleting quotation record",
+              });
+            });
+        }
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "The quotation record was not updated",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "The quotation update attempt failed",
+      error: error,
+    });
+  }
+};
+
 module.exports = {
   Dashboard_Upload_Profile_Pic,
   Dashboard_Staff_Entry,
@@ -1357,4 +1591,6 @@ module.exports = {
   Dashboard_Quotation_Invoice,
   Dashboard_Quotation_Data,
   Dashboard_Single_Quotation_Data,
+  Dashboard_Quotation_Update,
+  Dashboard_Quotation_Update_To_Sale,
 };
