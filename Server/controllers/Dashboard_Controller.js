@@ -554,7 +554,7 @@ const Dashboard_All_Orders = async (req, res) => {
     await Orders.find().then((result) => {
       if (result.length > 0) {
         result.forEach((order) => {
-          totalPrice += order.cart.totalPrice;
+          totalPrice += order.product_details.totalPrice;
         });
       }
       console.log(result);
