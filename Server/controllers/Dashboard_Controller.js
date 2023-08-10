@@ -467,6 +467,7 @@ const Dashboard_Checkout = async (req, res) => {
           } else {
             const Order = new Orders({
               user: req.user,
+              customer: customer_details._id,
               invoice_code: req.body.invoice_code,
               date: formattedToday,
               product_details: cart,

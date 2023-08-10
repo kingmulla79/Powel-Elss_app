@@ -7,6 +7,10 @@ const OrdersSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    customer: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
+    },
     invoice_code: {
       type: String,
       required: true,
