@@ -167,6 +167,14 @@ router.post(
 );
 
 router.get(
+  "/latest-order-invoice",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Latest_Order_Invoice
+);
+
+router.get(
   "/all-products",
   isAuth,
   isVerified,

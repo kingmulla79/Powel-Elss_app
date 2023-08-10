@@ -19,6 +19,10 @@ const OrdersSchema = new Schema(
       type: String,
       required: true,
     },
+    contact_person: {
+      type: String,
+      required: true,
+    },
     terms: {
       type: String,
     },

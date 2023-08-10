@@ -475,6 +475,7 @@ const Dashboard_Checkout = async (req, res) => {
               purchase_type: req.body.purchase_type,
               discount: req.body.discount,
               tax: req.body.tax,
+              contact_person: req.body.contact_person,
             });
             Order.save()
               .then((result) => {
@@ -505,6 +506,35 @@ const Dashboard_Checkout = async (req, res) => {
       error: error,
     });
   }
+};
+
+const Dashboard_Latest_Order_Invoice = async (req, res) => {
+  try {
+    await Orders.find({})
+      .sort({ $natural: -1 })
+      .limit(1)
+      .then(async (result) => {
+        if (result.length > 0) {
+          const order_invoice = result;
+
+          await Customer.findById(result[0].customer).then((result) => {
+            res.status(201).json({
+              success: true,
+              message:
+                "The order invoice and customer details are successfully fetched",
+              order_invoice: order_invoice,
+              customer_details: result,
+            });
+          });
+        }
+      })
+      .catch((err) => {
+        res.status(401).json({
+          success: false,
+          message: "The latest record was not fetched",
+        });
+      });
+  } catch (error) {}
 };
 
 const Dashboard_All_Products = async (req, res) => {
@@ -1564,6 +1594,7 @@ module.exports = {
   Dashboard_Remove_Items,
   Dashboard_Shopping_Cart_Details,
   Dashboard_Checkout,
+  Dashboard_Latest_Order_Invoice,
   Dashboard_All_Products,
   Dashboard_Order_Details,
   Dashboard_All_Orders,
