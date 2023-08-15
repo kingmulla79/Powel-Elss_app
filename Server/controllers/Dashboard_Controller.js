@@ -425,37 +425,46 @@ const Dashboard_Checkout = async (req, res) => {
       var cart = new Cart(req.session.cart);
 
       const customer_details = req.session.customer;
-      console.log(customer_details._id);
-      await Customer.findById(customer_details._id).then(async (result) => {
-        if (result) {
-          let oldInvoices = result.invoice_history || [];
-          if (oldInvoices.length) {
-            oldInvoices = oldInvoices.filter((t) => {
-              if (oldInvoices.invoice_code !== req.body.invoice_code) {
-                return t;
+      await Customer.findById(customer_details._id)
+        .then(async (result) => {
+          if (result) {
+            let oldInvoices = result.invoice_history || [];
+            oldInvoices.forEach(function (invoice) {
+              if (invoice.invoice_code === req.body.invoice_code) {
+                res.status(401).json({
+                  success: false,
+                  message: "The invoice code already exists",
+                });
+              } else {
+                console.log("The invoice code is unique");
               }
             });
-          }
 
-          await Customer.findByIdAndUpdate(customer_details._id, {
-            invoice_history: [
-              ...oldInvoices,
-              { invoice_code: req.body.invoice_code, status: "paid" },
-            ],
-          });
-          console.log("Invoice codes successfully updated");
-          if (req.body.contact_person) {
             await Customer.findByIdAndUpdate(customer_details._id, {
-              contact_person: req.body.contact_person,
+              invoice_history: [
+                ...oldInvoices,
+                { invoice_code: req.body.invoice_code, status: "paid" },
+              ],
+            });
+            console.log("Invoice codes successfully updated");
+            if (req.body.contact_person) {
+              await Customer.findByIdAndUpdate(customer_details._id, {
+                contact_person: req.body.contact_person,
+              });
+            }
+          } else {
+            res.status(401).json({
+              success: false,
+              message: "There is no customer record with the specified id",
             });
           }
-        } else {
-          res.status(401).json({
+        })
+        .catch((err) => {
+          res.status(500).json({
             success: false,
-            message: "There is no customer record with the specified id",
+            message: "An error occured while checking customer info",
           });
-        }
-      });
+        });
 
       await Quotation.find({ ref_code: req.body.invoice_code }).then(
         (result) => {
@@ -582,20 +591,37 @@ const Dashboard_Order_Details = async (req, res) => {
 const Dashboard_All_Orders = async (req, res) => {
   try {
     let totalPrice = 0;
-    await Orders.find().then((result) => {
-      if (result.length > 0) {
-        result.forEach((order) => {
-          totalPrice += order.product_details.totalPrice;
+    Orders.find()
+      .populate("customer")
+      .exec()
+      .then((result) => {
+        if (result.length > 0) {
+          result.forEach((order) => {
+            totalPrice += order.product_details.totalPrice;
+          });
+        }
+        console.log(result);
+        res.status(201).json({
+          totalPrice,
+          orders: result,
+          success: true,
+          message: "All the products have been successfully fetched",
         });
-      }
-      console.log(result);
-      res.status(201).json({
-        totalPrice,
-        orders: result,
-        success: true,
-        message: "All the products have been successfully fetched",
       });
-    });
+    // await Orders.find().then((result) => {
+    //   if (result.length > 0) {
+    //     result.forEach((order) => {
+    //       totalPrice += order.product_details.totalPrice;
+    //     });
+    //   }
+    //   console.log(result);
+    //   res.status(201).json({
+    //     totalPrice,
+    //     orders: result,
+    //     success: true,
+    //     message: "All the products have been successfully fetched",
+    //   });
+    // });
   } catch (error) {
     res.status(500).json({
       success: false,
