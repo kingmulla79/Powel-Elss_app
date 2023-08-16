@@ -5,18 +5,26 @@ const ProductsSchema = new Schema(
   {
     name: {
       type: String,
+      required: true,
     },
     desc: {
       type: String,
+      required: true,
     },
     category: {
       type: String,
+      required: true,
     },
     price: {
       type: Number,
+      required: true,
     },
     product_photo: {
       type: String,
+    },
+    purpose: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: true }

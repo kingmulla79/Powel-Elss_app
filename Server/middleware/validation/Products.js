@@ -21,6 +21,11 @@ exports.validateProductDetails = [
     .withMessage("Product price is required")
     .isInt()
     .withMessage("Only uses numbers for the price"),
+  check("purpose")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The product purpose is empty"),
 ];
 
 exports.productValidation = (req, res, next) => {

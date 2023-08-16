@@ -181,6 +181,13 @@ router.get(
   isAdmin,
   Dashboard_Controllers.Dashboard_All_Products
 );
+router.get(
+  "/all-supply-products/:purpose",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_All_Specific_Products
+);
 
 router.get(
   "/orders/:id",

@@ -217,6 +217,7 @@ const Dashboard_New_Item = async (req, res) => {
       category: req.body.category,
       price: req.body.price,
       product_photo: req.body.product_photo,
+      purpose: req.body.purpose,
     });
 
     item
@@ -570,6 +571,31 @@ const Dashboard_All_Products = async (req, res) => {
     });
   }
 };
+const Dashboard_All_Specific_Products = async (req, res) => {
+  try {
+    await Product.find({ purpose: req.params.purpose }).then((result) => {
+      if (result.length > 0) {
+        res.status(201).json({
+          products: result,
+          success: true,
+          message: `All the ${req.params.purpose} products have been successfully fetched`,
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: `There are no ${req.params.purpose} products stored yet`,
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: error while fetching product information",
+      error: error,
+    });
+  }
+};
+
 const Dashboard_Order_Details = async (req, res) => {
   try {
     await Orders.findById(req.params.id).then((result) => {
@@ -1622,6 +1648,7 @@ module.exports = {
   Dashboard_Checkout,
   Dashboard_Latest_Order_Invoice,
   Dashboard_All_Products,
+  Dashboard_All_Specific_Products,
   Dashboard_Order_Details,
   Dashboard_All_Orders,
   Dashboard_Deductions_Data,
