@@ -149,6 +149,14 @@ router.get(
 );
 
 router.get(
+  "/remove-cart",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Remove_Cart
+);
+
+router.get(
   "/shopping-cart",
   isAuth,
   isVerified,

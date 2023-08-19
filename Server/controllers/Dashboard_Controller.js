@@ -324,19 +324,31 @@ const Dashboard_Delete_Item = async (req, res) => {
 
 const Dashboard_Add_To_Cart = async (req, res) => {
   try {
+    let existingCart = req.session.cart || {};
     let productId = req.params.id;
     let cart = new Cart(req.session.cart ? req.session.cart : {});
+    // console.log(existingCart.items);
+    let ids = Object.keys(existingCart.items);
+    // console.log(ids);
+    // res.send("Test");
 
     await Product.findById(productId)
       .then((result) => {
-        cart.add(result, result._id);
-        req.session.cart = cart;
-        console.log(req.session.cart);
-        res.status(200).json({
-          cart: req.session.cart,
-          success: true,
-          message: `The item has been successfully added to cart`,
-        });
+        if (result.purpose === "service" && ids.includes(productId)) {
+          res.status(400).json({
+            success: false,
+            message: "The service selected already exists in the cart",
+          });
+        } else {
+          cart.add(result, result._id);
+          req.session.cart = cart;
+          console.log(req.session.cart);
+          res.status(200).json({
+            cart: req.session.cart,
+            success: true,
+            message: `The item has been successfully added to cart`,
+          });
+        }
       })
       .catch((error) => {
         res.status(401).json({
@@ -381,6 +393,28 @@ const Dashboard_Remove_Items = (req, res) => {
     message: `The item selected was successfully removed from the cart`,
     redirect: req.session.oldURL,
   });
+};
+
+const Dashboard_Remove_Cart = (req, res) => {
+  try {
+    if (req.session.cart) {
+      req.session.cart = null;
+      res.status(200).json({
+        success: true,
+        message: `The cart was successfully deleted`,
+      });
+    } else {
+      res.status(401).json({
+        success: false,
+        message: "There is no cart session available",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "An error occured while clearing the cart",
+    });
+  }
 };
 
 const Dashboard_Shopping_Cart_Details = (req, res) => {
@@ -634,20 +668,6 @@ const Dashboard_All_Orders = async (req, res) => {
           message: "All the products have been successfully fetched",
         });
       });
-    // await Orders.find().then((result) => {
-    //   if (result.length > 0) {
-    //     result.forEach((order) => {
-    //       totalPrice += order.product_details.totalPrice;
-    //     });
-    //   }
-    //   console.log(result);
-    //   res.status(201).json({
-    //     totalPrice,
-    //     orders: result,
-    //     success: true,
-    //     message: "All the products have been successfully fetched",
-    //   });
-    // });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -1644,6 +1664,7 @@ module.exports = {
   Dashboard_Add_To_Cart,
   Dashboard_Reduce_Cart_Items,
   Dashboard_Remove_Items,
+  Dashboard_Remove_Cart,
   Dashboard_Shopping_Cart_Details,
   Dashboard_Checkout,
   Dashboard_Latest_Order_Invoice,
