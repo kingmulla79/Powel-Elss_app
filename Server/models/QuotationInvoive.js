@@ -3,7 +3,11 @@ const Schema = mongoose.Schema;
 
 const QuotationInvoiceSchema = new Schema(
   {
-    invoice_code: {
+    customer: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
+    },
+    ref_code: {
       type: String,
       required: true,
     },
@@ -19,6 +23,10 @@ const QuotationInvoiceSchema = new Schema(
       type: String,
       required: true,
     },
+    quotation_type: {
+      type: String,
+      required: true,
+    },
     quotations_details: {
       type: Object,
       required: true,
@@ -28,6 +36,10 @@ const QuotationInvoiceSchema = new Schema(
     },
     tax: {
       type: Number,
+    },
+    purchase_status: {
+      type: String,
+      default: "quotation",
     },
   },
   { timestamps: true }

@@ -7,20 +7,42 @@ const OrdersSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    cart: {
-      type: Object,
-      required: true,
+    customer: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
     },
-    phone_number: {
-      type: String,
-      required: true,
-    },
-    name: {
+    invoice_code: {
       type: String,
       required: true,
     },
     date: {
       type: String,
+      required: true,
+    },
+    contact_person: {
+      type: String,
+      required: true,
+    },
+    terms: {
+      type: String,
+    },
+    purchase_type: {
+      type: String,
+      required: true,
+    },
+    product_details: {
+      type: Object,
+      required: true,
+    },
+    discount: {
+      type: Number,
+    },
+    tax: {
+      type: Number,
+    },
+    purchase_status: {
+      type: String,
+      default: "paid",
     },
   },
   { timestamps: true }

@@ -1,18 +1,22 @@
 const { check, validationResult } = require("express-validator");
 
 exports.validateQuotationDetails = [
-  check("invoice_code")
+  check("ref_code")
     .trim()
     .not()
     .isEmpty()
     .withMessage("The invoice_code is required"),
-  check("date").trim().not().isEmpty().withMessage("The date is required"),
   check("due_date")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("The due_date is required"),
+    .withMessage("The due date is required"),
   check("terms").trim().not().isEmpty().withMessage("The term is required"),
+  check("quotation_type")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The quotation type is required"),
   check("discount")
     .trim()
     .not()

@@ -149,6 +149,14 @@ router.get(
 );
 
 router.get(
+  "/remove-cart",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Remove_Cart
+);
+
+router.get(
   "/shopping-cart",
   isAuth,
   isVerified,
@@ -167,11 +175,26 @@ router.post(
 );
 
 router.get(
+  "/latest-order-invoice",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Latest_Order_Invoice
+);
+
+router.get(
   "/all-products",
   isAuth,
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_All_Products
+);
+router.get(
+  "/all-supply-products/:purpose",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_All_Specific_Products
 );
 
 router.get(
@@ -378,5 +401,19 @@ router.get(
   isVerified,
   isAdmin,
   Dashboard_Controllers.Dashboard_Single_Quotation_Data
+);
+router.patch(
+  "/update-quotation/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Update
+);
+router.patch(
+  "/update-quotation-to-sale/:id",
+  isAuth,
+  isVerified,
+  isAdmin,
+  Dashboard_Controllers.Dashboard_Quotation_Update_To_Sale
 );
 module.exports = router;

@@ -1,18 +1,37 @@
 const { check, validationResult } = require("express-validator");
 
 exports.validateCheckout = [
-  check("phone_number")
+  check("invoice_code")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("phone number is required to complete the checkout process")
+    .withMessage("The invoice_code is required"),
+  check("date").trim().not().isEmpty().withMessage("The date is required"),
+  check("terms").trim().not().isEmpty().withMessage("The term is required"),
+  check("contact_person")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The contact person is required"),
+  check("purchase_type")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The purchase type is required"),
+  check("discount")
+    .trim()
+    .not()
+    .isEmpty()
+    .withMessage("The discount is empty")
     .isInt()
-    .withMessage("Only uses numbers for the phone number"),
-  check("name")
+    .withMessage("Only uses numbers for the discount"),
+  check("tax")
     .trim()
     .not()
     .isEmpty()
-    .withMessage("Your name is required to complete the checkout process"),
+    .withMessage("The tax is empty")
+    .isInt()
+    .withMessage("Only uses numbers for the tax"),
 ];
 
 exports.checkoutValidation = (req, res, next) => {
