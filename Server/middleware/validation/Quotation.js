@@ -6,7 +6,6 @@ exports.validateQuotationDetails = [
     .not()
     .isEmpty()
     .withMessage("The invoice_code is required"),
-  check("date").trim().not().isEmpty().withMessage("The date is required"),
   check("due_date")
     .trim()
     .not()

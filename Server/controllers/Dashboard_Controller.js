@@ -324,13 +324,9 @@ const Dashboard_Delete_Item = async (req, res) => {
 
 const Dashboard_Add_To_Cart = async (req, res) => {
   try {
-    let existingCart = req.session.cart || {};
     let productId = req.params.id;
     let cart = new Cart(req.session.cart ? req.session.cart : {});
-    // console.log(existingCart.items);
-    let ids = Object.keys(existingCart.items);
-    // console.log(ids);
-    // res.send("Test");
+    let ids = Object.keys(cart.items);
 
     await Product.findById(productId)
       .then((result) => {
@@ -632,13 +628,16 @@ const Dashboard_All_Specific_Products = async (req, res) => {
 
 const Dashboard_Order_Details = async (req, res) => {
   try {
-    await Orders.findById(req.params.id).then((result) => {
-      res.status(201).json({
-        success: true,
-        message: "The order details have been successfully fetched",
-        result,
+    await Orders.findById(req.params.id)
+      .populate("customer")
+      .exec()
+      .then((result) => {
+        res.status(201).json({
+          success: true,
+          message: "The order details have been successfully fetched",
+          result,
+        });
       });
-    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -1398,6 +1397,7 @@ const Dashboard_Quotation_Invoice = async (req, res) => {
           });
         } else {
           const quotation = new Quotation({
+            customer: customer_details._id,
             ref_code: req.body.ref_code,
             date: formattedToday,
             due_date: req.body.due_date,
@@ -1440,20 +1440,23 @@ const Dashboard_Quotation_Invoice = async (req, res) => {
 
 const Dashboard_Quotation_Data = async (req, res) => {
   try {
-    await Quotation.find().then((result) => {
-      if (result.length > 0) {
-        res.status(201).json({
-          allowances: result,
-          success: true,
-          message: "The quotation details have been successfully fetched",
-        });
-      } else {
-        res.status(401).json({
-          success: false,
-          message: "There are no deduction stored yet",
-        });
-      }
-    });
+    await Quotation.find()
+      .populate("customer")
+      .exec()
+      .then((result) => {
+        if (result.length > 0) {
+          res.status(201).json({
+            allowances: result,
+            success: true,
+            message: "The quotation details have been successfully fetched",
+          });
+        } else {
+          res.status(401).json({
+            success: false,
+            message: "There are no deduction stored yet",
+          });
+        }
+      });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -1465,9 +1468,11 @@ const Dashboard_Quotation_Data = async (req, res) => {
 
 const Dashboard_Single_Quotation_Data = async (req, res) => {
   try {
-    await Quotation.find({ invoice_code: req.params.invoice })
+    await Quotation.find({ ref_code: req.params.invoice })
       .sort({ $natural: -1 })
       .limit(1)
+      .populate("customer")
+      .exec()
       .then((result) => {
         if (result.length > 0) {
           res.status(201).json({

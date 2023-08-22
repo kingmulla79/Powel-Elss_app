@@ -3,6 +3,10 @@ const Schema = mongoose.Schema;
 
 const QuotationInvoiceSchema = new Schema(
   {
+    customer: {
+      type: Schema.Types.ObjectId,
+      ref: "Customer",
+    },
     ref_code: {
       type: String,
       required: true,
